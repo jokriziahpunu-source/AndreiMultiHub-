@@ -1,12 +1,12 @@
 --[[
     PAUL HUB (Throw a Food for Animals)
-    Layout: Dark Side Panel (Complete Features)
+    Layout: Dark Side Panel (Complete + Minimize)
 ]]
 
 -- ============ CONFIG ============
 local CFG = {
     Name    = "PAUL HUB",
-    Version = "v2.1",
+    Version = "v2.3",
     Accent  = Color3.fromRGB(255, 100, 0), 
     BG      = Color3.fromRGB(15, 15, 20),
     Panel   = Color3.fromRGB(0, 0, 0), 
@@ -35,6 +35,9 @@ local ThrowRemote = Remotes:WaitForChild("Throw_Start")
 
 -- ============ STATE ============
 local State = {
+    iconOn     = true,
+    iconPos    = { x = 40, y = 120 },
+    iconSize   = 56,
     AutoThrow  = false,
     EquipBest  = false,
     AutoTrain  = false,
@@ -93,13 +96,25 @@ create("TextLabel", {
     Font = Enum.Font.GothamBold, TextSize = 15, TextXAlignment = Enum.TextXAlignment.Left,
 })
 
-local minBtn = create("TextButton", { Parent = header, Position = UDim2.new(1, -65, 0, 8), Size = UDim2.new(0, 25, 0, 20), BackgroundColor3 = CFG.Button, Text = "-", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 18, BorderSizePixel = 0 })
+-- ============ MINIMIZE BUTTON (-) ============
+local minBtn = create("TextButton", { 
+    Parent = header, Position = UDim2.new(1, -70, 0, 8), Size = UDim2.new(0, 30, 0, 20), 
+    BackgroundColor3 = CFG.Button, Text = "-", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 20, BorderSizePixel = 0 
+})
 create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = minBtn })
-minBtn.MouseButton1Click:Connect(function() main.Visible = false end)
+minBtn.MouseButton1Click:Connect(function() 
+    main.Visible = false -- Itatago lang, hindi buburahin
+end)
 
-local closeBtn = create("TextButton", { Parent = header, Position = UDim2.new(1, -35, 0, 8), Size = UDim2.new(0, 25, 0, 20), BackgroundColor3 = CFG.Button, Text = "X", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, BorderSizePixel = 0 })
+-- ============ CLOSE BUTTON (X) ============
+local closeBtn = create("TextButton", { 
+    Parent = header, Position = UDim2.new(1, -35, 0, 8), Size = UDim2.new(0, 30, 0, 20), 
+    BackgroundColor3 = CFG.Button, Text = "X", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, BorderSizePixel = 0 
+})
 create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = closeBtn })
-closeBtn.MouseButton1Click:Connect(function() gui:Destroy() end)
+closeBtn.MouseButton1Click:Connect(function() 
+    gui:Destroy() -- Buburahin lahat
+end)
 
 -- Drag
 local dragging, dragStart, startPos
@@ -116,6 +131,45 @@ UIS.InputChanged:Connect(function(input)
         local d = input.Position - dragStart
         main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + d.X, startPos.Y.Scale, startPos.Y.Offset + d.Y)
     end
+end)
+
+-- ============ FLOATING ICON ============
+local icon = create("ImageButton", {
+    Parent = gui, Size = UDim2.new(0, State.iconSize, 0, State.iconSize),
+    Position = UDim2.new(0, State.iconPos.x, 1, -State.iconPos.y), AnchorPoint = Vector2.new(0, 1),
+    BackgroundColor3 = CFG.Panel, BackgroundTransparency = 1, 
+    Image = "https://raw.githubusercontent.com/jokriziahpunu-source/AndreiMultiHub-/main/logo.png",
+    BorderSizePixel = 0, AutoButtonColor = false, Visible = State.iconOn, ZIndex = 10,
+})
+create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = icon })
+create("UIStroke", { Color = CFG.Accent, Thickness = 2, Parent = icon })
+
+local iconDragging, iconDragStart, iconStartPos, iconMoved
+icon.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        iconDragging, iconMoved, iconDragStart, iconStartPos = true, false, input.Position, icon.Position
+    end
+end)
+UIS.InputChanged:Connect(function(input)
+    if iconDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local d = input.Position - iconDragStart
+        if math.abs(d.X) > 4 or math.abs(d.Y) > 4 then iconMoved = true end
+        icon.Position = UDim2.new(iconStartPos.X.Scale, iconStartPos.X.Offset + d.X, iconStartPos.Y.Scale, iconStartPos.Y.Offset + d.Y)
+    end
+end)
+icon.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        if iconDragging then
+            iconDragging = false
+            State.iconPos.x = icon.Position.X.Offset
+            State.iconPos.y = -(icon.Position.Y.Offset)
+        end
+    end
+end)
+
+icon.MouseButton1Click:Connect(function()
+    if iconMoved then return end
+    main.Visible = not main.Visible -- Ipapakita ulit yung menu
 end)
 
 -- ============ SIDEBAR ============
@@ -265,7 +319,6 @@ task.spawn(function()
         
         if State.AutoBuy then 
             pcall(function() 
-                -- DITO MO ILALAGAY YUNG ID NG BINIBILI MO, halimbawa: UpgradeRemote:InvokeServer(30)
                 UpgradeRemote:InvokeServer(25) 
             end) 
         end
