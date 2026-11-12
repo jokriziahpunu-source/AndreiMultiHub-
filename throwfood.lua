@@ -1,12 +1,12 @@
 --[[
     PAUL HUB (Throw a Food for Animals)
-    Layout: Dark Side Panel (Complete + Minimize)
+    Layout: Sidebar + Safe Hide (Walang Destroy)
 ]]
 
 -- ============ CONFIG ============
 local CFG = {
     Name    = "PAUL HUB",
-    Version = "v2.3",
+    Version = "v3.2",
     Accent  = Color3.fromRGB(255, 100, 0), 
     BG      = Color3.fromRGB(15, 15, 20),
     Panel   = Color3.fromRGB(0, 0, 0), 
@@ -35,9 +35,6 @@ local ThrowRemote = Remotes:WaitForChild("Throw_Start")
 
 -- ============ STATE ============
 local State = {
-    iconOn     = true,
-    iconPos    = { x = 40, y = 120 },
-    iconSize   = 56,
     AutoThrow  = false,
     EquipBest  = false,
     AutoTrain  = false,
@@ -72,6 +69,27 @@ local viewport = Camera and Camera.ViewportSize or Vector2.new(1280, 720)
 local winWidth  = math.min(500, math.max(350, viewport.X - 40))
 local winHeight = math.min(380, math.max(300, viewport.Y - 80))
 
+-- ============ OPEN BUTTON (Lalabas pag naka-hide) ============
+local openBtn = create("TextButton", {
+    Parent = gui,
+    Size = UDim2.new(0, 100, 0, 35),
+    Position = UDim2.new(0, 20, 0.5, 0),
+    BackgroundColor3 = CFG.Accent,
+    Text = "PAUL HUB",
+    TextColor3 = Color3.new(1,1,1),
+    Font = Enum.Font.GothamBold,
+    TextSize = 14,
+    Visible = false, 
+    ZIndex = 20
+})
+create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = openBtn })
+
+openBtn.MouseButton1Click:Connect(function()
+    openBtn.Visible = false
+    main.Visible = true
+end)
+
+-- ============ MAIN GUI ============
 local main = create("Frame", {
     Name = "Main", Parent = gui, Size = UDim2.new(0, winWidth, 0, winHeight),
     Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5),
@@ -96,24 +114,26 @@ create("TextLabel", {
     Font = Enum.Font.GothamBold, TextSize = 15, TextXAlignment = Enum.TextXAlignment.Left,
 })
 
--- ============ MINIMIZE BUTTON (-) ============
+-- MINIMIZE BUTTON (-)
 local minBtn = create("TextButton", { 
     Parent = header, Position = UDim2.new(1, -70, 0, 8), Size = UDim2.new(0, 30, 0, 20), 
     BackgroundColor3 = CFG.Button, Text = "-", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 20, BorderSizePixel = 0 
 })
 create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = minBtn })
 minBtn.MouseButton1Click:Connect(function() 
-    main.Visible = false -- Itatago lang, hindi buburahin
+    main.Visible = false
+    openBtn.Visible = true
 end)
 
--- ============ CLOSE BUTTON (X) ============
+-- CLOSE BUTTON (X) - Hindi na kinikill ang script
 local closeBtn = create("TextButton", { 
     Parent = header, Position = UDim2.new(1, -35, 0, 8), Size = UDim2.new(0, 30, 0, 20), 
     BackgroundColor3 = CFG.Button, Text = "X", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, BorderSizePixel = 0 
 })
 create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = closeBtn })
 closeBtn.MouseButton1Click:Connect(function() 
-    gui:Destroy() -- Buburahin lahat
+    main.Visible = false
+    openBtn.Visible = true
 end)
 
 -- Drag
@@ -133,46 +153,7 @@ UIS.InputChanged:Connect(function(input)
     end
 end)
 
--- ============ FLOATING ICON ============
-local icon = create("ImageButton", {
-    Parent = gui, Size = UDim2.new(0, State.iconSize, 0, State.iconSize),
-    Position = UDim2.new(0, State.iconPos.x, 1, -State.iconPos.y), AnchorPoint = Vector2.new(0, 1),
-    BackgroundColor3 = CFG.Panel, BackgroundTransparency = 1, 
-    Image = "https://raw.githubusercontent.com/jokriziahpunu-source/AndreiMultiHub-/main/logo.png",
-    BorderSizePixel = 0, AutoButtonColor = false, Visible = State.iconOn, ZIndex = 10,
-})
-create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = icon })
-create("UIStroke", { Color = CFG.Accent, Thickness = 2, Parent = icon })
-
-local iconDragging, iconDragStart, iconStartPos, iconMoved
-icon.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        iconDragging, iconMoved, iconDragStart, iconStartPos = true, false, input.Position, icon.Position
-    end
-end)
-UIS.InputChanged:Connect(function(input)
-    if iconDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        local d = input.Position - iconDragStart
-        if math.abs(d.X) > 4 or math.abs(d.Y) > 4 then iconMoved = true end
-        icon.Position = UDim2.new(iconStartPos.X.Scale, iconStartPos.X.Offset + d.X, iconStartPos.Y.Scale, iconStartPos.Y.Offset + d.Y)
-    end
-end)
-icon.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        if iconDragging then
-            iconDragging = false
-            State.iconPos.x = icon.Position.X.Offset
-            State.iconPos.y = -(icon.Position.Y.Offset)
-        end
-    end
-end)
-
-icon.MouseButton1Click:Connect(function()
-    if iconMoved then return end
-    main.Visible = not main.Visible -- Ipapakita ulit yung menu
-end)
-
--- ============ SIDEBAR ============
+-- SIDEBAR
 local sidebarWidth = 120
 local sidebar = create("Frame", { Parent = main, Position = UDim2.new(0, 0, 0, 36), Size = UDim2.new(0, sidebarWidth, 1, -36), BackgroundColor3 = CFG.Panel, BorderSizePixel = 0 })
 create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = sidebar })
@@ -202,7 +183,7 @@ discordBtn.MouseButton1Click:Connect(function()
     if setclipboard then setclipboard(link) end
 end)
 
--- ============ CONTENT AREA ============
+-- CONTENT AREA
 local content = create("ScrollingFrame", {
     Parent = contentFrame, Position = UDim2.new(0, 10, 0, 10), Size = UDim2.new(1, -20, 1, -20),
     BackgroundTransparency = 1, BorderSizePixel = 0, ScrollBarThickness = 4, ScrollBarImageColor3 = CFG.Accent, CanvasSize = UDim2.new(0, 0, 0, 0), AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -227,7 +208,7 @@ local function makeHeader(text)
     create("TextLabel", { Parent = content, Size = UDim2.new(1, 0, 0, 20), BackgroundTransparency = 1, Text = text, TextColor3 = CFG.Accent, Font = Enum.Font.GothamBold, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left })
 end
 
--- ============ TAB RENDERERS ============
+-- TAB RENDERERS
 local function renderAutoFarm()
     clearContent()
     makeHeader("Auto Features")
@@ -309,7 +290,7 @@ end
 
 for i, btn in ipairs(tabButtons) do btn.MouseButton1Click:Connect(function() showTab(i) end) end
 
--- ============ LOGIC LOOP ============
+-- LOGIC LOOP (Patuloy na tumatakbo kahit naka-hide)
 task.spawn(function()
     while task.wait(0.5) do
         if State.AutoTrain then pcall(function() TrainRemote:InvokeServer() end) end
@@ -326,4 +307,3 @@ task.spawn(function()
 end)
 
 showTab(1)
-game.StarterGui:SetCore("SendNotification", {Title="Paul Hub"; Text="Throw a Food Hub Loaded!"; Duration=3})
