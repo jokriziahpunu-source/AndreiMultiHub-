@@ -1,12 +1,12 @@
 --[[
-    PAUL HUB v1.4 (RIVALS) - Dark Theme Discord Sidebar
+    PAUL HUB v1.5 (RIVALS)
     Game: RIVALS
 ]]
 
 -- ============ CONFIG ============
 local CFG = {
     Name    = "PAUL HUB",
-    Version = "v1.4",
+    Version = "v1.5",
     Accent  = Color3.fromRGB(255, 100, 0), 
     BG      = Color3.fromRGB(15, 15, 20),
     Panel   = Color3.fromRGB(0, 0, 0), -- Pure Black Sidebar
@@ -298,12 +298,12 @@ for i, name in ipairs(TAB_NAMES) do
     tabButtons[i] = btn
 end
 
--- ============ DARK DISCORD BUTTON (Nasa ilalim ng sidebar) ============
+-- ============ DARK DISCORD BUTTON ============
 local discordBtn = create("TextButton", {
     Parent = sidebar,
     Size = UDim2.new(1, -16, 0, 34),
     Position = UDim2.new(0, 8, 1, -44), 
-    BackgroundColor3 = CFG.Button, -- Itim/gray gaya ng ibang buttons
+    BackgroundColor3 = CFG.Button, -- Dark gray, bagay sa sidebar
     Text = "",
     BorderSizePixel = 0,
     AutoButtonColor = false,
@@ -311,17 +311,17 @@ local discordBtn = create("TextButton", {
 })
 create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = discordBtn })
 
--- Discord Icon
-create("ImageLabel", {
+-- Discord Icon (Gamit ang mas standard na ID)
+local dcIcon = create("ImageLabel", {
     Parent = discordBtn,
     Position = UDim2.new(0, 8, 0.5, -9),
     Size = UDim2.new(0, 18, 0, 18),
     BackgroundTransparency = 1,
     Image = "rbxassetid://13885149324", 
-    ImageColor3 = Color3.fromRGB(150, 150, 165), -- Gray icon para bagay sa dark theme
+    ImageColor3 = Color3.fromRGB(150, 150, 165),
 })
 
--- Text
+-- Discord Text
 create("TextLabel", {
     Parent = discordBtn,
     Position = UDim2.new(0, 30, 0, 0),
@@ -336,11 +336,11 @@ create("TextLabel", {
 
 discordBtn.MouseEnter:Connect(function() 
     discordBtn.BackgroundColor3 = CFG.Hover
-    discordBtn.ImageLabel.ImageColor3 = Color3.fromRGB(88, 101, 242) -- Nagiging blurple icon pag hover
+    dcIcon.ImageColor3 = Color3.fromRGB(88, 101, 242) -- Nag-blurple pag hover
 end)
 discordBtn.MouseLeave:Connect(function() 
     discordBtn.BackgroundColor3 = CFG.Button
-    discordBtn.ImageLabel.ImageColor3 = Color3.fromRGB(150, 150, 165)
+    dcIcon.ImageColor3 = Color3.fromRGB(150, 150, 165)
 end)
 discordBtn.MouseButton1Click:Connect(function()
     local link = "https://discord.gg/Ukw8abnmH"
