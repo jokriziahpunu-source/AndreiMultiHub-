@@ -1,11 +1,11 @@
 --[[
     PAUL HUB (Throw a Food for Animals)
-    Version: v4.0 (Fixed Drag & Toggle)
+    Version: v4.1 (Fixed Auto Throw)
 ]]
 
 local CFG = {
     Name    = "PAUL HUB",
-    Version = "v4.0",
+    Version = "v4.1",
     Accent  = Color3.fromRGB(255, 100, 0), 
     BG      = Color3.fromRGB(15, 15, 20),
     Panel   = Color3.fromRGB(0, 0, 0), 
@@ -87,15 +87,13 @@ create("TextLabel", {
     Font = Enum.Font.GothamBold, TextSize = 15, TextXAlignment = Enum.TextXAlignment.Left,
 })
 
--- CLOSE BUTTON (X) -> Magtatago lang, hindi mamamatay
+-- CLOSE BUTTON (X) -> Magtatago lang
 local closeBtn = create("TextButton", { 
     Parent = header, Position = UDim2.new(1, -35, 0, 8), Size = UDim2.new(0, 25, 0, 20), 
     BackgroundColor3 = CFG.Button, Text = "X", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, BorderSizePixel = 0 
 })
 create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = closeBtn })
-closeBtn.MouseButton1Click:Connect(function() 
-    main.Visible = false 
-end)
+closeBtn.MouseButton1Click:Connect(function() main.Visible = false end)
 
 -- Drag Main Window
 local dragMain, startMain, posMain
@@ -116,7 +114,7 @@ UIS.InputEnded:Connect(function(input)
     end
 end)
 
--- ============ FLOATING ICON (Draggable & Toggle) ============
+-- ============ FLOATING ICON ============
 local icon = create("ImageButton", {
     Parent = gui, Size = UDim2.new(0, 50, 0, 50),
     Position = UDim2.new(0, 20, 0.5, -25), 
@@ -130,18 +128,13 @@ create("UIStroke", { Color = CFG.Accent, Thickness = 2, Parent = icon })
 local dragIcon, startIcon, posIcon, iconMoved
 icon.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragIcon = true
-        iconMoved = false
-        startIcon = input.Position
-        posIcon = icon.Position
+        dragIcon, iconMoved, startIcon, posIcon = true, false, input.Position, icon.Position
     end
 end)
 UIS.InputChanged:Connect(function(input)
     if dragIcon and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
         local d = input.Position - startIcon
-        if math.abs(d.X) > 3 or math.abs(d.Y) > 3 then
-            iconMoved = true
-        end
+        if math.abs(d.X) > 3 or math.abs(d.Y) > 3 then iconMoved = true end
         icon.Position = UDim2.new(posIcon.X.Scale, posIcon.X.Offset + d.X, posIcon.Y.Scale, posIcon.Y.Offset + d.Y)
     end
 end)
@@ -151,7 +144,6 @@ UIS.InputEnded:Connect(function(input)
     end
 end)
 
--- TOGGLE LOGIC
 icon.MouseButton1Click:Connect(function()
     if iconMoved then return end 
     main.Visible = not main.Visible
@@ -290,14 +282,29 @@ end
 
 for i, btn in ipairs(tabButtons) do btn.MouseButton1Click:Connect(function() showTab(i) end) end
 
--- LOGIC LOOP
+-- ============ LOGIC LOOPS (Hiwalay para hindi mag-conflict) ============
+
+-- 1. Loop para sa Auto Train, Upgrade, Buy, Equip (Fast)
 task.spawn(function()
     while task.wait(0.5) do
         if State.AutoTrain then pcall(function() TrainRemote:InvokeServer() end) end
         if State.AutoUpgrade then pcall(function() UpgradeRemote:InvokeServer(25) end) end
         if State.EquipBest then pcall(function() EquipRemote:InvokeServer() end) end
-        if State.AutoThrow then pcall(function() ThrowRemote:InvokeServer() end) end
         if State.AutoBuy then pcall(function() UpgradeRemote:InvokeServer(25) end) end
+    end
+end)
+
+-- 2. Loop para sa Auto Throw (Hiwalay, may sariling delay para hindi mag-yield nang sabay)
+task.spawn(function()
+    while task.wait() do
+        if State.AutoThrow then
+            pcall(function() 
+                ThrowRemote:InvokeServer() 
+            end)
+            task.wait(0.3) -- Pwede mong gawing 0.1 kung gusto mong mas mabilis, pero baka ma-kick
+        else
+            task.wait(0.5)
+        end
     end
 end)
 
