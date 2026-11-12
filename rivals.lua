@@ -1,5 +1,5 @@
 --[[
-    PAUL HUB v1.0 (RIVALS)
+    PAUL HUB v1.1 (RIVALS)
     Game: RIVALS
     Layout: Black Side Panel
 ]]
@@ -7,7 +7,7 @@
 -- ============ CONFIG ============
 local CFG = {
     Name    = "PAUL HUB",
-    Version = "v1.0",
+    Version = "v1.1",
     Accent  = Color3.fromRGB(255, 50, 50), -- Red accent para pang-RIVALS
     BG      = Color3.fromRGB(18, 18, 24),
     Panel   = Color3.fromRGB(0, 0, 0),     -- Pure Black Sidebar
@@ -277,6 +277,36 @@ for i, name in ipairs(TAB_NAMES) do
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = btn })
     tabButtons[i] = btn
 end
+
+-- DISCORD BUTTON SA PINAKA-ILALIM NG SIDEBAR
+local discordBtn = create("TextButton", {
+    Parent = sidebar,
+    Size = UDim2.new(1, -16, 0, 32),
+    Position = UDim2.new(0, 8, 1, -42), -- Naka-pwesto sa pinakababa
+    BackgroundColor3 = Color3.fromRGB(88, 101, 242), -- Discord Blurple
+    Text = "Join Discord",
+    TextColor3 = CFG.Text,
+    Font = Enum.Font.GothamBold,
+    TextSize = 12,
+    BorderSizePixel = 0,
+    AutoButtonColor = false,
+    ZIndex = 2
+})
+create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = discordBtn })
+discordBtn.MouseEnter:Connect(function() discordBtn.BackgroundColor3 = Color3.fromRGB(110, 120, 250) end)
+discordBtn.MouseLeave:Connect(function() discordBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242) end)
+discordBtn.MouseButton1Click:Connect(function()
+    local link = "https://discord.gg/Ukw8abnmH"
+    if setclipboard then
+        setclipboard(link)
+        toast("Discord link copied!", CFG.Good)
+    elseif toclipboard then
+        toclipboard(link)
+        toast("Discord link copied!", CFG.Good)
+    else
+        toast("Link: " .. link, CFG.SubText)
+    end
+end)
 
 local content = create("ScrollingFrame", {
     Parent = contentFrame, Position = UDim2.new(0, 10, 0, 10), Size = UDim2.new(1, -20, 1, -32),
