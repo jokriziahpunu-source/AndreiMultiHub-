@@ -1,15 +1,15 @@
 --[[
-    PAUL HUB v1.5 (RIVALS)
+    PAUL HUB v1.7 (RIVALS)
     Game: RIVALS
 ]]
 
 -- ============ CONFIG ============
 local CFG = {
     Name    = "PAUL HUB",
-    Version = "v1.5",
+    Version = "v1.7",
     Accent  = Color3.fromRGB(255, 100, 0), 
     BG      = Color3.fromRGB(15, 15, 20),
-    Panel   = Color3.fromRGB(0, 0, 0), -- Pure Black Sidebar
+    Panel   = Color3.fromRGB(0, 0, 0), 
     Button  = Color3.fromRGB(30, 30, 35),
     Hover   = Color3.fromRGB(50, 50, 60),
     Text    = Color3.fromRGB(235, 235, 245),
@@ -36,7 +36,6 @@ local UIS     = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local HS      = game:GetService("HttpService")
 local TS      = game:GetService("TeleportService")
-local TweenService = game:GetService("TweenService")
 local Camera  = workspace.CurrentCamera
 local LP      = Players.LocalPlayer
 
@@ -95,17 +94,7 @@ local main = create("Frame", {
     Active = true,
 })
 create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = main })
-
--- ANIME EFFECT: Pulsing Chakra Border
-local mainStroke = create("UIStroke", { Color = CFG.Accent, Thickness = 2, Transparency = 0.2, Parent = main })
-task.spawn(function()
-    while gui.Parent do
-        TweenService:Create(mainStroke, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Transparency = 0.7, Thickness = 1.5}):Play()
-        task.wait(1.5)
-        TweenService:Create(mainStroke, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Transparency = 0.1, Thickness = 2.5}):Play()
-        task.wait(1.5)
-    end
-end)
+create("UIStroke", { Color = CFG.Accent, Thickness = 1.5, Transparency = 0.5, Parent = main })
 
 -- Header
 local header = create("Frame", {
@@ -117,24 +106,6 @@ local header = create("Frame", {
 create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = header })
 create("Frame", { Parent = header, Size = UDim2.new(1, 0, 0, 10), Position = UDim2.new(0, 0, 1, -10), BackgroundColor3 = CFG.Panel, BorderSizePixel = 0 })
 
--- ANIME EFFECT: Flowing Gradient (Chakra)
-local headerGradient = create("UIGradient", {
-    Parent = header,
-    Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 100, 255)), 
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 100, 0)), 
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 100, 255))
-    }),
-    Rotation = 0
-})
-task.spawn(function()
-    while gui.Parent do
-        headerGradient.Rotation = (headerGradient.Rotation + 1) % 360
-        task.wait(0.03)
-    end
-end)
-
--- LOGO
 create("ImageLabel", {
     Parent = header,
     Position = UDim2.new(0, 10, 0, 8),
@@ -154,10 +125,8 @@ create("TextLabel", {
     TextSize = 15,
     TextXAlignment = Enum.TextXAlignment.Left,
     TextTruncate = Enum.TextTruncate.AtEnd,
-    ZIndex = 2
 })
 
--- MINIMIZE BUTTON (-)
 local minBtn = create("TextButton", {
     Parent = header,
     Position = UDim2.new(1, -65, 0, 8),
@@ -168,14 +137,10 @@ local minBtn = create("TextButton", {
     Font = Enum.Font.GothamBold,
     TextSize = 18,
     BorderSizePixel = 0,
-    ZIndex = 2
 })
 create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = minBtn })
-minBtn.MouseEnter:Connect(function() minBtn.BackgroundColor3 = CFG.Accent end)
-minBtn.MouseLeave:Connect(function() minBtn.BackgroundColor3 = CFG.Button end)
 minBtn.MouseButton1Click:Connect(function() main.Visible = false end)
 
--- CLOSE BUTTON (X)
 local closeBtn = create("TextButton", {
     Parent = header,
     Position = UDim2.new(1, -35, 0, 8),
@@ -186,14 +151,10 @@ local closeBtn = create("TextButton", {
     Font = Enum.Font.GothamBold,
     TextSize = 14,
     BorderSizePixel = 0,
-    ZIndex = 2
 })
 create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = closeBtn })
-closeBtn.MouseEnter:Connect(function() closeBtn.BackgroundColor3 = CFG.Bad end)
-closeBtn.MouseLeave:Connect(function() closeBtn.BackgroundColor3 = CFG.Button end)
 closeBtn.MouseButton1Click:Connect(function() gui:Destroy() end)
 
--- Drag
 local dragging, dragStart, startPos
 header.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -233,8 +194,7 @@ local function toast(msg, color)
     })
     task.delay(3, function()
         if not t.Parent then return end
-        for i = 1, 20 do if not t.Parent then return end t.BackgroundTransparency = i / 20; task.wait(0.02) end
-        if t.Parent then t:Destroy() end
+        t:Destroy()
     end)
 end
 
@@ -277,33 +237,33 @@ icon.MouseButton1Click:Connect(function()
     main.Visible = not main.Visible
 end)
 
--- ============ SIDEBAR & CONTENT ============
+-- ============ SIDEBAR ============
 local sidebarWidth = 120
 local sidebar = create("Frame", { Parent = main, Position = UDim2.new(0, 0, 0, 36), Size = UDim2.new(0, sidebarWidth, 1, -36), BackgroundColor3 = CFG.Panel, BorderSizePixel = 0 })
 create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = sidebar })
 create("Frame", { Parent = sidebar, Size = UDim2.new(0, 10, 1, 0), Position = UDim2.new(1, -10, 0, 0), BackgroundColor3 = CFG.Panel, BorderSizePixel = 0 })
-create("UIListLayout", { Parent = sidebar, Padding = UDim.new(0, 4), HorizontalAlignment = Enum.HorizontalAlignment.Center, VerticalAlignment = Enum.VerticalAlignment.Top, SortOrder = Enum.SortOrder.LayoutOrder })
-create("UIPadding", { PaddingTop = UDim.new(0, 10), Parent = sidebar })
 
-local contentFrame = create("Frame", { Parent = main, Position = UDim2.new(0, sidebarWidth, 0, 36), Size = UDim2.new(1, -sidebarWidth, 1, -36), BackgroundTransparency = 1 })
-
+-- Manual Tabs Positioning (Walang UIListLayout)
 local TAB_NAMES = { "Keyless", "Misc" }
 local tabButtons = {}
 for i, name in ipairs(TAB_NAMES) do
     local btn = create("TextButton", {
-        Parent = sidebar, Size = UDim2.new(1, -16, 0, 32), BackgroundColor3 = CFG.Button,
-        Text = name, TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 12, BorderSizePixel = 0, AutoButtonColor = false, LayoutOrder = i,
+        Parent = sidebar, 
+        Size = UDim2.new(1, -16, 0, 32), 
+        Position = UDim2.new(0, 8, 0, 10 + ((i-1) * 36)), 
+        BackgroundColor3 = CFG.Button,
+        Text = name, TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 12, BorderSizePixel = 0, AutoButtonColor = false,
     })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = btn })
     tabButtons[i] = btn
 end
 
--- ============ DARK DISCORD BUTTON ============
+-- DARK DISCORD BUTTON (Bottom)
 local discordBtn = create("TextButton", {
     Parent = sidebar,
     Size = UDim2.new(1, -16, 0, 34),
     Position = UDim2.new(0, 8, 1, -44), 
-    BackgroundColor3 = CFG.Button, -- Dark gray, bagay sa sidebar
+    BackgroundColor3 = CFG.Button,
     Text = "",
     BorderSizePixel = 0,
     AutoButtonColor = false,
@@ -311,8 +271,7 @@ local discordBtn = create("TextButton", {
 })
 create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = discordBtn })
 
--- Discord Icon (Gamit ang mas standard na ID)
-local dcIcon = create("ImageLabel", {
+create("ImageLabel", {
     Parent = discordBtn,
     Position = UDim2.new(0, 8, 0.5, -9),
     Size = UDim2.new(0, 18, 0, 18),
@@ -321,7 +280,6 @@ local dcIcon = create("ImageLabel", {
     ImageColor3 = Color3.fromRGB(150, 150, 165),
 })
 
--- Discord Text
 create("TextLabel", {
     Parent = discordBtn,
     Position = UDim2.new(0, 30, 0, 0),
@@ -334,22 +292,15 @@ create("TextLabel", {
     TextXAlignment = Enum.TextXAlignment.Left,
 })
 
-discordBtn.MouseEnter:Connect(function() 
-    discordBtn.BackgroundColor3 = CFG.Hover
-    dcIcon.ImageColor3 = Color3.fromRGB(88, 101, 242) -- Nag-blurple pag hover
-end)
-discordBtn.MouseLeave:Connect(function() 
-    discordBtn.BackgroundColor3 = CFG.Button
-    dcIcon.ImageColor3 = Color3.fromRGB(150, 150, 165)
-end)
 discordBtn.MouseButton1Click:Connect(function()
     local link = "https://discord.gg/Ukw8abnmH"
     if setclipboard then setclipboard(link); toast("Discord link copied!", CFG.Good)
     elseif toclipboard then toclipboard(link); toast("Discord link copied!", CFG.Good)
-    else toast("Link: " .. link, CFG.SubText) end
+    end
 end)
 
 -- ============ CONTENT ============
+local contentFrame = create("Frame", { Parent = main, Position = UDim2.new(0, sidebarWidth, 0, 36), Size = UDim2.new(1, -sidebarWidth, 1, -36), BackgroundTransparency = 1 })
 local content = create("ScrollingFrame", {
     Parent = contentFrame, Position = UDim2.new(0, 10, 0, 10), Size = UDim2.new(1, -20, 1, -32),
     BackgroundTransparency = 1, BorderSizePixel = 0, ScrollBarThickness = 4, ScrollBarImageColor3 = CFG.Accent, CanvasSize = UDim2.new(0, 0, 0, 0), AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -366,17 +317,6 @@ local function makeButton(label, onClick)
         TextColor3 = CFG.Text, Font = Enum.Font.GothamMedium, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, BorderSizePixel = 0, AutoButtonColor = false,
     })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = btn })
-    
-    local stroke = create("UIStroke", { Color = CFG.Accent, Thickness = 1, Transparency = 1, Parent = btn })
-    btn.MouseEnter:Connect(function() 
-        btn.BackgroundColor3 = CFG.Hover 
-        TweenService:Create(stroke, TweenInfo.new(0.2), {Transparency = 0}):Play()
-    end)
-    btn.MouseLeave:Connect(function() 
-        btn.BackgroundColor3 = CFG.Button 
-        TweenService:Create(stroke, TweenInfo.new(0.2), {Transparency = 1}):Play()
-    end)
-    
     btn.MouseButton1Click:Connect(onClick)
     return btn
 end
@@ -394,7 +334,7 @@ local function runScript(name, url)
             if type(fn) ~= "function" then error("loadstring returned nil") end
             fn()
         end)
-        if ok then toast(name .. " loaded", CFG.Good) else toast(name .. " failed", CFG.Bad); warn(err) end
+        if ok then toast(name .. " loaded", CFG.Good) else toast(name .. " failed", CFG.Bad) end
     end)
 end
 
