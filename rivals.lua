@@ -1,15 +1,15 @@
 --[[
-    PAUL HUB v1.2 (RIVALS) - Naruto Effect Edition
+    PAUL HUB v1.4 (RIVALS) - Dark Theme Discord Sidebar
     Game: RIVALS
 ]]
 
 -- ============ CONFIG ============
 local CFG = {
     Name    = "PAUL HUB",
-    Version = "v1.2",
-    Accent  = Color3.fromRGB(255, 100, 0), -- Naruto Orange
+    Version = "v1.4",
+    Accent  = Color3.fromRGB(255, 100, 0), 
     BG      = Color3.fromRGB(15, 15, 20),
-    Panel   = Color3.fromRGB(0, 0, 0), 
+    Panel   = Color3.fromRGB(0, 0, 0), -- Pure Black Sidebar
     Button  = Color3.fromRGB(30, 30, 35),
     Hover   = Color3.fromRGB(50, 50, 60),
     Text    = Color3.fromRGB(235, 235, 245),
@@ -36,7 +36,6 @@ local UIS     = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local HS      = game:GetService("HttpService")
 local TS      = game:GetService("TeleportService")
-local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Camera  = workspace.CurrentCamera
 local LP      = Players.LocalPlayer
@@ -122,8 +121,8 @@ create("Frame", { Parent = header, Size = UDim2.new(1, 0, 0, 10), Position = UDi
 local headerGradient = create("UIGradient", {
     Parent = header,
     Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 100, 255)), -- Chidori Blue
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 100, 0)), -- Kurama Orange
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 100, 255)), 
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 100, 0)), 
         ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 100, 255))
     }),
     Rotation = 0
@@ -299,23 +298,50 @@ for i, name in ipairs(TAB_NAMES) do
     tabButtons[i] = btn
 end
 
--- DISCORD BUTTON SA PINAKA-ILALIM NG SIDEBAR
+-- ============ DARK DISCORD BUTTON (Nasa ilalim ng sidebar) ============
 local discordBtn = create("TextButton", {
     Parent = sidebar,
-    Size = UDim2.new(1, -16, 0, 32),
-    Position = UDim2.new(0, 8, 1, -42),
-    BackgroundColor3 = Color3.fromRGB(88, 101, 242),
-    Text = "Join Discord",
-    TextColor3 = CFG.Text,
-    Font = Enum.Font.GothamBold,
-    TextSize = 12,
+    Size = UDim2.new(1, -16, 0, 34),
+    Position = UDim2.new(0, 8, 1, -44), 
+    BackgroundColor3 = CFG.Button, -- Itim/gray gaya ng ibang buttons
+    Text = "",
     BorderSizePixel = 0,
     AutoButtonColor = false,
     ZIndex = 2
 })
 create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = discordBtn })
-discordBtn.MouseEnter:Connect(function() discordBtn.BackgroundColor3 = Color3.fromRGB(110, 120, 250) end)
-discordBtn.MouseLeave:Connect(function() discordBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242) end)
+
+-- Discord Icon
+create("ImageLabel", {
+    Parent = discordBtn,
+    Position = UDim2.new(0, 8, 0.5, -9),
+    Size = UDim2.new(0, 18, 0, 18),
+    BackgroundTransparency = 1,
+    Image = "rbxassetid://13885149324", 
+    ImageColor3 = Color3.fromRGB(150, 150, 165), -- Gray icon para bagay sa dark theme
+})
+
+-- Text
+create("TextLabel", {
+    Parent = discordBtn,
+    Position = UDim2.new(0, 30, 0, 0),
+    Size = UDim2.new(1, -30, 1, 0),
+    BackgroundTransparency = 1,
+    Text = "Discord",
+    TextColor3 = CFG.Text,
+    Font = Enum.Font.GothamBold,
+    TextSize = 12,
+    TextXAlignment = Enum.TextXAlignment.Left,
+})
+
+discordBtn.MouseEnter:Connect(function() 
+    discordBtn.BackgroundColor3 = CFG.Hover
+    discordBtn.ImageLabel.ImageColor3 = Color3.fromRGB(88, 101, 242) -- Nagiging blurple icon pag hover
+end)
+discordBtn.MouseLeave:Connect(function() 
+    discordBtn.BackgroundColor3 = CFG.Button
+    discordBtn.ImageLabel.ImageColor3 = Color3.fromRGB(150, 150, 165)
+end)
 discordBtn.MouseButton1Click:Connect(function()
     local link = "https://discord.gg/Ukw8abnmH"
     if setclipboard then setclipboard(link); toast("Discord link copied!", CFG.Good)
@@ -323,6 +349,7 @@ discordBtn.MouseButton1Click:Connect(function()
     else toast("Link: " .. link, CFG.SubText) end
 end)
 
+-- ============ CONTENT ============
 local content = create("ScrollingFrame", {
     Parent = contentFrame, Position = UDim2.new(0, 10, 0, 10), Size = UDim2.new(1, -20, 1, -32),
     BackgroundTransparency = 1, BorderSizePixel = 0, ScrollBarThickness = 4, ScrollBarImageColor3 = CFG.Accent, CanvasSize = UDim2.new(0, 0, 0, 0), AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -340,7 +367,6 @@ local function makeButton(label, onClick)
     })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = btn })
     
-    -- ANIME EFFECT: Hover Glow
     local stroke = create("UIStroke", { Color = CFG.Accent, Thickness = 1, Transparency = 1, Parent = btn })
     btn.MouseEnter:Connect(function() 
         btn.BackgroundColor3 = CFG.Hover 
