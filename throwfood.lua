@@ -1,5 +1,5 @@
 --[[
-    Throw Food Hub v1.1
+    Throw Food Hub v1.3
     Game: Throw a Food for Animals
     Tabs: Keyless / Misc
 ]]
@@ -7,8 +7,8 @@
 -- ============ CONFIG ============
 local CFG = {
     Name    = "Throw Food Hub",
-    Version = "v1.1",
-    Accent  = Color3.fromRGB(255, 165, 0), -- Orange theme
+    Version = "v1.3",
+    Accent  = Color3.fromRGB(255, 165, 0),
     BG      = Color3.fromRGB(18, 18, 24),
     Panel   = Color3.fromRGB(26, 26, 34),
     Button  = Color3.fromRGB(38, 38, 50),
@@ -121,7 +121,7 @@ create("ImageLabel", {
     Position = UDim2.new(0, 10, 0, 8),
     Size = UDim2.new(0, 20, 0, 20),
     BackgroundTransparency = 1,
-    Image = "https://raw.githubusercontent.com/jokriziahpunu-source/Andrei-hub-multi/main/logo.png",
+    Image = "https://raw.githubusercontent.com/jokriziahpunu-source/AndreiMultiHub-/main/logo.png",
 })
 
 create("TextLabel", {
@@ -137,6 +137,25 @@ create("TextLabel", {
     TextTruncate = Enum.TextTruncate.AtEnd,
 })
 
+-- MINIMIZE BUTTON (-)
+local minBtn = create("TextButton", {
+    Parent = header,
+    Position = UDim2.new(1, -58, 0, 8),
+    Size = UDim2.new(0, 20, 0, 20),
+    BackgroundTransparency = 1,
+    Text = "—",
+    TextColor3 = CFG.SubText,
+    Font = Enum.Font.GothamBold,
+    TextSize = 16,
+    BorderSizePixel = 0,
+})
+minBtn.MouseEnter:Connect(function() minBtn.TextColor3 = CFG.Accent end)
+minBtn.MouseLeave:Connect(function() minBtn.TextColor3 = CFG.SubText end)
+minBtn.MouseButton1Click:Connect(function() 
+    main.Visible = false
+end)
+
+-- CLOSE BUTTON (X)
 local closeBtn = create("TextButton", {
     Parent = header,
     Position = UDim2.new(1, -32, 0, 8),
@@ -150,7 +169,9 @@ local closeBtn = create("TextButton", {
 })
 closeBtn.MouseEnter:Connect(function() closeBtn.TextColor3 = CFG.Bad end)
 closeBtn.MouseLeave:Connect(function() closeBtn.TextColor3 = CFG.SubText end)
-closeBtn.MouseButton1Click:Connect(function() gui:Destroy() end)
+closeBtn.MouseButton1Click:Connect(function() 
+    gui:Destroy()
+end)
 
 -- Drag
 local dragging, dragStart, startPos
@@ -202,7 +223,7 @@ local icon = create("ImageButton", {
     Parent = gui, Size = UDim2.new(0, State.iconSize, 0, State.iconSize),
     Position = UDim2.new(0, State.iconPos.x, 1, -State.iconPos.y), AnchorPoint = Vector2.new(0, 1),
     BackgroundColor3 = CFG.Panel, BackgroundTransparency = 1, 
-    Image = "https://raw.githubusercontent.com/jokriziahpunu-source/Andrei-hub-multi/main/logo.png",
+    Image = "https://raw.githubusercontent.com/jokriziahpunu-source/AndreiMultiHub-/main/logo.png",
     BorderSizePixel = 0, AutoButtonColor = false, Visible = State.iconOn, ZIndex = 10,
 })
 create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = icon })
@@ -353,6 +374,20 @@ local function renderMisc()
                 TS:TeleportToPlaceInstance(game.PlaceId, s.id, LP)
                 break
             end
+        end
+    end)
+
+    makeHeader("Community")
+    makeButton("Join Discord", function()
+        local discordLink = "https://discord.gg/c3WbTW4Hc"
+        if setclipboard then
+            setclipboard(discordLink)
+            toast("Discord link copied!", CFG.Good)
+        elseif toclipboard then
+            toclipboard(discordLink)
+            toast("Discord link copied!", CFG.Good)
+        else
+            toast("Link: " .. discordLink, CFG.SubText)
         end
     end)
 end
