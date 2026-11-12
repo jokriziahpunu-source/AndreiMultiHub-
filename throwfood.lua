@@ -1,12 +1,12 @@
 --[[
     PAUL HUB (Throw a Food for Animals)
-    Layout: Sidebar + Safe Hide (Walang Destroy)
+    Layout: Sidebar + Draggable Toggle Icon
 ]]
 
 -- ============ CONFIG ============
 local CFG = {
     Name    = "PAUL HUB",
-    Version = "v3.2",
+    Version = "v3.4",
     Accent  = Color3.fromRGB(255, 100, 0), 
     BG      = Color3.fromRGB(15, 15, 20),
     Panel   = Color3.fromRGB(0, 0, 0), 
@@ -69,26 +69,6 @@ local viewport = Camera and Camera.ViewportSize or Vector2.new(1280, 720)
 local winWidth  = math.min(500, math.max(350, viewport.X - 40))
 local winHeight = math.min(380, math.max(300, viewport.Y - 80))
 
--- ============ OPEN BUTTON (Lalabas pag naka-hide) ============
-local openBtn = create("TextButton", {
-    Parent = gui,
-    Size = UDim2.new(0, 100, 0, 35),
-    Position = UDim2.new(0, 20, 0.5, 0),
-    BackgroundColor3 = CFG.Accent,
-    Text = "PAUL HUB",
-    TextColor3 = Color3.new(1,1,1),
-    Font = Enum.Font.GothamBold,
-    TextSize = 14,
-    Visible = false, 
-    ZIndex = 20
-})
-create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = openBtn })
-
-openBtn.MouseButton1Click:Connect(function()
-    openBtn.Visible = false
-    main.Visible = true
-end)
-
 -- ============ MAIN GUI ============
 local main = create("Frame", {
     Name = "Main", Parent = gui, Size = UDim2.new(0, winWidth, 0, winHeight),
@@ -114,29 +94,17 @@ create("TextLabel", {
     Font = Enum.Font.GothamBold, TextSize = 15, TextXAlignment = Enum.TextXAlignment.Left,
 })
 
--- MINIMIZE BUTTON (-)
-local minBtn = create("TextButton", { 
-    Parent = header, Position = UDim2.new(1, -70, 0, 8), Size = UDim2.new(0, 30, 0, 20), 
-    BackgroundColor3 = CFG.Button, Text = "-", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 20, BorderSizePixel = 0 
-})
-create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = minBtn })
-minBtn.MouseButton1Click:Connect(function() 
-    main.Visible = false
-    openBtn.Visible = true
-end)
-
--- CLOSE BUTTON (X) - Hindi na kinikill ang script
+-- CLOSE BUTTON (X) -> Magtatago lang, hindi mamamatay
 local closeBtn = create("TextButton", { 
-    Parent = header, Position = UDim2.new(1, -35, 0, 8), Size = UDim2.new(0, 30, 0, 20), 
+    Parent = header, Position = UDim2.new(1, -35, 0, 8), Size = UDim2.new(0, 25, 0, 20), 
     BackgroundColor3 = CFG.Button, Text = "X", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, BorderSizePixel = 0 
 })
 create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = closeBtn })
 closeBtn.MouseButton1Click:Connect(function() 
-    main.Visible = false
-    openBtn.Visible = true
+    main.Visible = false 
 end)
 
--- Drag
+-- Drag Window
 local dragging, dragStart, startPos
 header.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -153,7 +121,54 @@ UIS.InputChanged:Connect(function(input)
     end
 end)
 
--- SIDEBAR
+-- ============ FLOATING ICON (Draggable at Toggle) ============
+local icon = create("ImageButton", {
+    Parent = gui, Size = UDim2.new(0, 50, 0, 50),
+    Position = UDim2.new(0, 20, 0.5, -25), -- Default position
+    BackgroundColor3 = CFG.Panel, BackgroundTransparency = 1, 
+    Image = "https://raw.githubusercontent.com/jokriziahpunu-source/AndreiMultiHub-/main/logo.png",
+    BorderSizePixel = 0, AutoButtonColor = false, ZIndex = 10,
+})
+create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = icon })
+create("UIStroke", { Color = CFG.Accent, Thickness = 2, Parent = icon })
+
+local iconDragging = false
+local iconDragStart = nil
+local iconStartPos = nil
+local iconMoved = false
+
+icon.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        iconDragging = true
+        iconMoved = false
+        iconDragStart = input.Position
+        iconStartPos = icon.Position
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if iconDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - iconDragStart
+        if math.abs(delta.X) > 4 or math.abs(delta.Y) > 4 then
+            iconMoved = true
+        end
+        icon.Position = UDim2.new(iconStartPos.X.Scale, iconStartPos.X.Offset + delta.X, iconStartPos.Y.Scale, iconStartPos.Y.Offset + delta.Y)
+    end
+end)
+
+icon.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        iconDragging = false
+    end
+end)
+
+-- TOGGLE LOGIC (Kapag pinindot, isasara/bubuksan)
+icon.MouseButton1Click:Connect(function()
+    if iconMoved then return end -- Wag i-toggle kung ini-drag lang
+    main.Visible = not main.Visible
+end)
+
+-- ============ SIDEBAR ============
 local sidebarWidth = 120
 local sidebar = create("Frame", { Parent = main, Position = UDim2.new(0, 0, 0, 36), Size = UDim2.new(0, sidebarWidth, 1, -36), BackgroundColor3 = CFG.Panel, BorderSizePixel = 0 })
 create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = sidebar })
@@ -256,7 +271,7 @@ local function renderAutoFarm()
     makeHeader("Actions")
     makeButton("Auto Sell (Instant)", function()
         local success, err = pcall(function()
-            local args = { [1] = "a154" } -- Palitan mo ng tamang Plot ID mo kung iba
+            local args = { [1] = "a154" }
             SellRemote:InvokeServer(unpack(args))
         end)
         if success then
@@ -290,7 +305,7 @@ end
 
 for i, btn in ipairs(tabButtons) do btn.MouseButton1Click:Connect(function() showTab(i) end) end
 
--- LOGIC LOOP (Patuloy na tumatakbo kahit naka-hide)
+-- LOGIC LOOP (Laging tumatakbo)
 task.spawn(function()
     while task.wait(0.5) do
         if State.AutoTrain then pcall(function() TrainRemote:InvokeServer() end) end
