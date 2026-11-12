@@ -1,5 +1,5 @@
 --[[
-    PAUL HUB v1.0
+    PAUL HUB v1.1
     Game: Throw a Food for Animals
     Layout: Black Side Panel
 ]]
@@ -7,7 +7,7 @@
 -- ============ CONFIG ============
 local CFG = {
     Name    = "PAUL HUB",
-    Version = "v1.0",
+    Version = "v1.1",
     Accent  = Color3.fromRGB(255, 165, 0),
     BG      = Color3.fromRGB(18, 18, 24),
     Panel   = Color3.fromRGB(0, 0, 0),     -- Pure Black Sidebar
@@ -24,6 +24,7 @@ local HUB_SCRIPTS = {
     {
         tab = "Keyless",
         scripts = {
+            { name = "[Keyless] AQUA", url = "https://scriptblox.com/raw/Throw-Food-For-Animals-AQUA-HUB-or-AUTO-BEST-ANIMAL-AUTOFARM-AUTO-TRAIN-234234" },
             { name = "[Keyless] TORA (Auto Throw)", url = "https://raw.githubusercontent.com/gumanba/Scripts/main/ThrowFoodForAnimals" },
             { name = "[Keyless] AKKIWI", url = "https://akkiwi.com/h" },
             { name = "[Keyless] ANDREAN", url = "https://flowauth.net/v1/loaders/3953ac305b7855bd4108974b01f57bfd.lua" },
@@ -137,7 +138,7 @@ create("TextLabel", {
     TextTruncate = Enum.TextTruncate.AtEnd,
 })
 
--- MINIMIZE BUTTON (-) - Pinalaki at nilagyan ng background
+-- MINIMIZE BUTTON (-)
 local minBtn = create("TextButton", {
     Parent = header,
     Position = UDim2.new(1, -65, 0, 8),
@@ -156,7 +157,7 @@ minBtn.MouseButton1Click:Connect(function()
     main.Visible = false
 end)
 
--- CLOSE BUTTON (X) - Pinalaki at nilagyan ng background
+-- CLOSE BUTTON (X)
 local closeBtn = create("TextButton", {
     Parent = header,
     Position = UDim2.new(1, -35, 0, 8),
