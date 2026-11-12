@@ -1,11 +1,18 @@
 --[[
     PAUL HUB (Throw a Food for Animals)
-    Version: v4.1 (Fixed Auto Throw)
+    Version: v5.0 (Instant Fire on Toggle)
 ]]
+
+-- KILL SWITCH: Papatayin nito yung mga lumang na-execute mo kanina
+if getgenv().PaulHubRunning then
+    getgenv().PaulHubRunning = false
+    task.wait(0.2) 
+end
+getgenv().PaulHubRunning = true
 
 local CFG = {
     Name    = "PAUL HUB",
-    Version = "v4.1",
+    Version = "v5.0",
     Accent  = Color3.fromRGB(255, 100, 0), 
     BG      = Color3.fromRGB(15, 15, 20),
     Panel   = Color3.fromRGB(0, 0, 0), 
@@ -51,8 +58,10 @@ local function create(class, props)
 end
 
 local parent = getParent()
-if parent:FindFirstChild("PaulThrowHub") then
-    parent.PaulThrowHub:Destroy()
+-- Linisin lahat ng lumang GUI para wala nang patung-patong
+for _, name in ipairs({"PaulThrowHub", "CustomAndreanHub", "ThrowFoodHub", "PaulHubMenu"}) do
+    local old = parent:FindFirstChild(name)
+    if old then old:Destroy() end
 end
 
 local gui = create("ScreenGui", { Name = "PaulThrowHub", ResetOnSpawn = false, Parent = parent })
@@ -62,7 +71,6 @@ local viewport = Camera and Camera.ViewportSize or Vector2.new(1280, 720)
 local winWidth  = math.min(500, math.max(350, viewport.X - 40))
 local winHeight = math.min(380, math.max(300, viewport.Y - 80))
 
--- ============ MAIN GUI ============
 local main = create("Frame", {
     Name = "Main", Parent = gui, Size = UDim2.new(0, winWidth, 0, winHeight),
     Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5),
@@ -210,6 +218,7 @@ local function renderAutoFarm()
         State.AutoThrow = not State.AutoThrow
         throwBtn.Text = "  Auto Throw: " .. (State.AutoThrow and "ON" or "OFF")
         throwBtn.TextColor3 = State.AutoThrow and CFG.Good or CFG.Text
+        if State.AutoThrow then pcall(function() ThrowRemote:InvokeServer() end) end -- INSTANT FIRE
     end)
     throwBtn.TextColor3 = State.AutoThrow and CFG.Good or CFG.Text
 
@@ -218,6 +227,7 @@ local function renderAutoFarm()
         State.EquipBest = not State.EquipBest
         equipBtn.Text = "  Auto Equip Best: " .. (State.EquipBest and "ON" or "OFF")
         equipBtn.TextColor3 = State.EquipBest and CFG.Good or CFG.Text
+        if State.EquipBest then pcall(function() EquipRemote:InvokeServer() end) end -- INSTANT FIRE
     end)
     equipBtn.TextColor3 = State.EquipBest and CFG.Good or CFG.Text
 
@@ -226,6 +236,7 @@ local function renderAutoFarm()
         State.AutoTrain = not State.AutoTrain
         trainBtn.Text = "  Auto Train: " .. (State.AutoTrain and "ON" or "OFF")
         trainBtn.TextColor3 = State.AutoTrain and CFG.Good or CFG.Text
+        if State.AutoTrain then pcall(function() TrainRemote:InvokeServer() end) end -- INSTANT FIRE
     end)
     trainBtn.TextColor3 = State.AutoTrain and CFG.Good or CFG.Text
 
@@ -234,6 +245,7 @@ local function renderAutoFarm()
         State.AutoUpgrade = not State.AutoUpgrade
         upgBtn.Text = "  Auto Upgrade: " .. (State.AutoUpgrade and "ON" or "OFF")
         upgBtn.TextColor3 = State.AutoUpgrade and CFG.Good or CFG.Text
+        if State.AutoUpgrade then pcall(function() UpgradeRemote:InvokeServer(25) end) end -- INSTANT FIRE
     end)
     upgBtn.TextColor3 = State.AutoUpgrade and CFG.Good or CFG.Text
 
@@ -242,18 +254,16 @@ local function renderAutoFarm()
         State.AutoBuy = not State.AutoBuy
         buyBtn.Text = "  Auto Buy: " .. (State.AutoBuy and "ON" or "OFF")
         buyBtn.TextColor3 = State.AutoBuy and CFG.Good or CFG.Text
+        if State.AutoBuy then pcall(function() UpgradeRemote:InvokeServer(25) end) end -- INSTANT FIRE
     end)
     buyBtn.TextColor3 = State.AutoBuy and CFG.Good or CFG.Text
 
     makeHeader("Actions")
     makeButton("Auto Sell (Instant)", function()
-        local success, err = pcall(function()
+        pcall(function()
             local args = { [1] = "a154" }
             SellRemote:InvokeServer(unpack(args))
         end)
-        if success then
-            game.StarterGui:SetCore("SendNotification", {Title="Paul Hub"; Text="Sold All Animals!"; Duration=2})
-        end
     end)
 end
 
@@ -282,29 +292,19 @@ end
 
 for i, btn in ipairs(tabButtons) do btn.MouseButton1Click:Connect(function() showTab(i) end) end
 
--- ============ LOGIC LOOPS (Hiwalay para hindi mag-conflict) ============
-
--- 1. Loop para sa Auto Train, Upgrade, Buy, Equip (Fast)
+-- ============ LOGIC LOOP (Fast, No Delay on start) ============
 task.spawn(function()
-    while task.wait(0.5) do
+    while getgenv().PaulHubRunning do
         if State.AutoTrain then pcall(function() TrainRemote:InvokeServer() end) end
         if State.AutoUpgrade then pcall(function() UpgradeRemote:InvokeServer(25) end) end
         if State.EquipBest then pcall(function() EquipRemote:InvokeServer() end) end
         if State.AutoBuy then pcall(function() UpgradeRemote:InvokeServer(25) end) end
-    end
-end)
-
--- 2. Loop para sa Auto Throw (Hiwalay, may sariling delay para hindi mag-yield nang sabay)
-task.spawn(function()
-    while task.wait() do
+        
         if State.AutoThrow then
-            pcall(function() 
-                ThrowRemote:InvokeServer() 
-            end)
-            task.wait(0.3) -- Pwede mong gawing 0.1 kung gusto mong mas mabilis, pero baka ma-kick
-        else
-            task.wait(0.5)
+            pcall(function() ThrowRemote:InvokeServer() end)
         end
+        
+        task.wait(0.1) -- Napakabilis na delay, safe pa rin sa server
     end
 end)
 
