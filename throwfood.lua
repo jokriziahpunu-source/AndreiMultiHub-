@@ -1,18 +1,18 @@
 --[[
-    Throw Food Hub v1.3
+    PAUL HUB v1.0
     Game: Throw a Food for Animals
-    Tabs: Keyless / Misc
+    Layout: Black Side Panel
 ]]
 
 -- ============ CONFIG ============
 local CFG = {
-    Name    = "Throw Food Hub",
-    Version = "v1.3",
-    Accent  = Color3.fromRGB(255, 165, 0),
+    Name    = "PAUL HUB",
+    Version = "v1.0",
+    Accent  = Color3.fromRGB(255, 165, 0), -- Orange accent
     BG      = Color3.fromRGB(18, 18, 24),
-    Panel   = Color3.fromRGB(26, 26, 34),
-    Button  = Color3.fromRGB(38, 38, 50),
-    Hover   = Color3.fromRGB(52, 52, 68),
+    Panel   = Color3.fromRGB(0, 0, 0),     -- Pure Black Sidebar
+    Button  = Color3.fromRGB(30, 30, 35),
+    Hover   = Color3.fromRGB(45, 45, 50),
     Text    = Color3.fromRGB(235, 235, 245),
     SubText = Color3.fromRGB(150, 150, 165),
     Good    = Color3.fromRGB(120, 220, 140),
@@ -60,8 +60,8 @@ local function create(class, props)
 end
 
 local parent = getParent()
-if parent:FindFirstChild("ThrowFoodHub") then
-    parent.ThrowFoodHub:Destroy()
+if parent:FindFirstChild("PaulHub") then
+    parent.PaulHub:Destroy()
 end
 
 -- ============ STATE ============
@@ -75,7 +75,7 @@ local State = {
 
 -- ============ GUI ============
 local gui = create("ScreenGui", {
-    Name = "ThrowFoodHub",
+    Name = "PaulHub",
     ResetOnSpawn = false,
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
     Parent = parent,
