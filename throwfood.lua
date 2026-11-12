@@ -1,5 +1,5 @@
 --[[
-    Throw Food Hub v1.0
+    Throw Food Hub v1.1
     Game: Throw a Food for Animals
     Tabs: Keyless / Misc
 ]]
@@ -7,8 +7,8 @@
 -- ============ CONFIG ============
 local CFG = {
     Name    = "Throw Food Hub",
-    Version = "v1.0",
-    Accent  = Color3.fromRGB(255, 165, 0), -- Orange theme para pang- hayop
+    Version = "v1.1",
+    Accent  = Color3.fromRGB(255, 165, 0), -- Orange theme
     BG      = Color3.fromRGB(18, 18, 24),
     Panel   = Color3.fromRGB(26, 26, 34),
     Button  = Color3.fromRGB(38, 38, 50),
@@ -24,10 +24,10 @@ local HUB_SCRIPTS = {
     {
         tab = "Keyless",
         scripts = {
-            { name = "TORA (Auto Throw)", url = "https://raw.githubusercontent.com/gumanba/Scripts/main/ThrowFoodForAnimals" },
-            { name = "AKKIWI", url = "https://akkiwi.com/h" },
-            { name = "ANDREAN", url = "https://flowauth.net/v1/loaders/3953ac305b7855bd4108974b01f57bfd.lua" },
-            { name = "MATRIX", url = "https://raw.githubusercontent.com/ummarxfarooq/mystrix-hub/refs/heads/main/loader" },
+            { name = "[Keyless] TORA (Auto Throw)", url = "https://raw.githubusercontent.com/gumanba/Scripts/main/ThrowFoodForAnimals" },
+            { name = "[Keyless] AKKIWI", url = "https://akkiwi.com/h" },
+            { name = "[Keyless] ANDREAN", url = "https://flowauth.net/v1/loaders/3953ac305b7855bd4108974b01f57bfd.lua" },
+            { name = "[Keyless] MATRIX", url = "https://raw.githubusercontent.com/ummarxfarooq/mystrix-hub/refs/heads/main/loader" },
         },
     },
 }
@@ -39,7 +39,6 @@ local HS      = game:GetService("HttpService")
 local Camera  = workspace.CurrentCamera
 local LP      = Players.LocalPlayer
 local TS      = game:GetService("TeleportService")
-local RunService = game:GetService("RunService")
 
 local function getParent()
     if gethui then
@@ -116,9 +115,18 @@ create("Frame", {
     BorderSizePixel = 0,
 })
 
+-- LOGO
+create("ImageLabel", {
+    Parent = header,
+    Position = UDim2.new(0, 10, 0, 8),
+    Size = UDim2.new(0, 20, 0, 20),
+    BackgroundTransparency = 1,
+    Image = "https://raw.githubusercontent.com/jokriziahpunu-source/Andrei-hub-multi/main/logo.png",
+})
+
 create("TextLabel", {
     Parent = header,
-    Position = UDim2.new(0, 14, 0, 0),
+    Position = UDim2.new(0, 38, 0, 0),
     Size = UDim2.new(1, -130, 1, 0),
     BackgroundTransparency = 1,
     Text = CFG.Name .. "  " .. CFG.Version,
@@ -193,7 +201,8 @@ end
 local icon = create("ImageButton", {
     Parent = gui, Size = UDim2.new(0, State.iconSize, 0, State.iconSize),
     Position = UDim2.new(0, State.iconPos.x, 1, -State.iconPos.y), AnchorPoint = Vector2.new(0, 1),
-    BackgroundColor3 = CFG.Panel, BackgroundTransparency = 1, Image = "rbxassetid://7103077125", -- Generic food icon
+    BackgroundColor3 = CFG.Panel, BackgroundTransparency = 1, 
+    Image = "https://raw.githubusercontent.com/jokriziahpunu-source/Andrei-hub-multi/main/logo.png",
     BorderSizePixel = 0, AutoButtonColor = false, Visible = State.iconOn, ZIndex = 10,
 })
 create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = icon })
@@ -254,7 +263,6 @@ local content = create("ScrollingFrame", {
 })
 create("UIListLayout", { Parent = content, Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder })
 
-local function setStatus(text, color) end -- Removed for simplicity
 local function clearContent()
     for _, c in ipairs(content:GetChildren()) do if c:IsA("TextButton") or c:IsA("TextLabel") then c:Destroy() end end
 end
@@ -338,7 +346,6 @@ local function renderMisc()
 
     makeHeader("Server Hop")
     makeButton("Server Hop (Low Players)", function()
-        -- Simple server hop logic
         local servers = HS:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")).data
         table.sort(servers, function(a,b) return a.playing < b.playing end)
         for _, s in ipairs(servers) do
