@@ -8,7 +8,7 @@
 local CFG = {
     Name    = "PAUL HUB",
     Version = "v1.0",
-    Accent  = Color3.fromRGB(255, 165, 0), -- Orange accent
+    Accent  = Color3.fromRGB(255, 165, 0),
     BG      = Color3.fromRGB(18, 18, 24),
     Panel   = Color3.fromRGB(0, 0, 0),     -- Pure Black Sidebar
     Button  = Color3.fromRGB(30, 30, 35),
@@ -127,7 +127,7 @@ create("ImageLabel", {
 create("TextLabel", {
     Parent = header,
     Position = UDim2.new(0, 38, 0, 0),
-    Size = UDim2.new(1, -130, 1, 0),
+    Size = UDim2.new(1, -140, 1, 0),
     BackgroundTransparency = 1,
     Text = CFG.Name .. "  " .. CFG.Version,
     TextColor3 = CFG.Text,
@@ -137,38 +137,40 @@ create("TextLabel", {
     TextTruncate = Enum.TextTruncate.AtEnd,
 })
 
--- MINIMIZE BUTTON (-)
+-- MINIMIZE BUTTON (-) - Pinalaki at nilagyan ng background
 local minBtn = create("TextButton", {
     Parent = header,
-    Position = UDim2.new(1, -58, 0, 8),
-    Size = UDim2.new(0, 20, 0, 20),
-    BackgroundTransparency = 1,
-    Text = "—",
-    TextColor3 = CFG.SubText,
+    Position = UDim2.new(1, -65, 0, 8),
+    Size = UDim2.new(0, 25, 0, 20),
+    BackgroundColor3 = CFG.Button,
+    Text = "-",
+    TextColor3 = CFG.Text,
     Font = Enum.Font.GothamBold,
-    TextSize = 16,
+    TextSize = 18,
     BorderSizePixel = 0,
 })
-minBtn.MouseEnter:Connect(function() minBtn.TextColor3 = CFG.Accent end)
-minBtn.MouseLeave:Connect(function() minBtn.TextColor3 = CFG.SubText end)
+create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = minBtn })
+minBtn.MouseEnter:Connect(function() minBtn.BackgroundColor3 = CFG.Accent end)
+minBtn.MouseLeave:Connect(function() minBtn.BackgroundColor3 = CFG.Button end)
 minBtn.MouseButton1Click:Connect(function() 
     main.Visible = false
 end)
 
--- CLOSE BUTTON (X)
+-- CLOSE BUTTON (X) - Pinalaki at nilagyan ng background
 local closeBtn = create("TextButton", {
     Parent = header,
-    Position = UDim2.new(1, -32, 0, 8),
-    Size = UDim2.new(0, 20, 0, 20),
-    BackgroundTransparency = 1,
+    Position = UDim2.new(1, -35, 0, 8),
+    Size = UDim2.new(0, 25, 0, 20),
+    BackgroundColor3 = CFG.Button,
     Text = "X",
-    TextColor3 = CFG.SubText,
+    TextColor3 = CFG.Text,
     Font = Enum.Font.GothamBold,
     TextSize = 14,
     BorderSizePixel = 0,
 })
-closeBtn.MouseEnter:Connect(function() closeBtn.TextColor3 = CFG.Bad end)
-closeBtn.MouseLeave:Connect(function() closeBtn.TextColor3 = CFG.SubText end)
+create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = closeBtn })
+closeBtn.MouseEnter:Connect(function() closeBtn.BackgroundColor3 = CFG.Bad end)
+closeBtn.MouseLeave:Connect(function() closeBtn.BackgroundColor3 = CFG.Button end)
 closeBtn.MouseButton1Click:Connect(function() 
     gui:Destroy()
 end)
