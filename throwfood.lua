@@ -1,6 +1,6 @@
 --[[
     PAUL HUB PRO (Throw a Food for Animals)
-    Version: v3.4 (Custom Speed/Jump Input)
+    Version: v4.2 (Working Labels + Animations)
 ]]
 
 if getgenv().PaulHubRunning then
@@ -11,7 +11,7 @@ getgenv().PaulHubRunning = true
 
 local CFG = {
     Name    = "PAUL HUB PRO",
-    Version = "v3.4",
+    Version = "v4.2",
     Accent  = Color3.fromRGB(0, 150, 255),
     BG      = Color3.fromRGB(10, 15, 25),
     Panel   = Color3.fromRGB(5, 10, 20), 
@@ -35,6 +35,20 @@ local HUB_SCRIPTS = {
     },
 }
 
+-- ============ ANIMATIONS ============
+local ANIMS = {
+    { name = "Floss", id = 182435998 },
+    { name = "Orange Justice", id = 182436842 },
+    { name = "Robot", id = 182491037 },
+    { name = "Old Man Dance", id = 182436842 },
+    { name = "Dance (Default)", id = 507771019 }, 
+    { name = "Laugh", id = 507770818 },
+    { name = "Cheer", id = 507770677 },
+    { name = "Wave", id = 507770239 },
+    { name = "Point", id = 507770453 },
+}
+
+-- ============ ENV ============
 local UIS     = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local Camera  = workspace.CurrentCamera
@@ -43,12 +57,8 @@ local HS      = game:GetService("HttpService")
 local TS      = game:GetService("TeleportService")
 local RunService = game:GetService("RunService")
 
-local State = {
-    SpeedEnabled = false,
-    JumpEnabled = false,
-    SpeedValue = 16, -- Default speed
-    JumpValue = 50,  -- Default jump
-}
+local State = { SpeedEnabled = false, JumpEnabled = false, SpeedValue = 16, JumpValue = 50 }
+local currentTrack = nil
 
 local function getParent() if gethui then return gethui() end return LP:WaitForChild("PlayerGui") end
 local function create(class, props)
@@ -69,7 +79,7 @@ if syn and syn.protect_gui then pcall(syn.protect_gui, gui) end
 
 local viewport = Camera and Camera.ViewportSize or Vector2.new(1280, 720)
 local winWidth  = math.min(500, math.max(350, viewport.X - 40))
-local winHeight = math.min(380, math.max(300, viewport.Y - 80))
+local winHeight = math.min(400, math.max(300, viewport.Y - 80))
 
 local main = create("Frame", {
     Name = "Main", Parent = gui, Size = UDim2.new(0, winWidth, 0, winHeight),
@@ -84,12 +94,10 @@ local header = create("Frame", { Parent = main, Size = UDim2.new(1, 0, 0, 36), B
 create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = header })
 create("Frame", { Parent = header, Size = UDim2.new(1, 0, 0, 10), Position = UDim2.new(0, 0, 1, -10), BackgroundColor3 = CFG.Panel, BorderSizePixel = 0 })
 
--- TEXT LOGO
 local headerLogo = create("TextLabel", {
     Parent = header, Position = UDim2.new(0, 10, 0, 8), Size = UDim2.new(0, 24, 0, 24),
     BackgroundColor3 = Color3.fromRGB(0, 0, 0), Text = "PH",
-    TextColor3 = CFG.Accent, Font = Enum.Font.GothamBold, TextSize = 12,
-    BorderSizePixel = 0,
+    TextColor3 = CFG.Accent, Font = Enum.Font.GothamBold, TextSize = 12, BorderSizePixel = 0,
 })
 create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = headerLogo })
 create("UIStroke", { Color = CFG.Accent, Thickness = 1, Parent = headerLogo })
@@ -125,15 +133,9 @@ UIS.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputT
 
 -- FLOATING ICON
 local icon = create("TextButton", {
-    Parent = gui, Size = UDim2.new(0, 60, 0, 60), 
-    Position = UDim2.new(0, 20, 0.5, -30), 
-    BackgroundColor3 = Color3.fromRGB(0, 0, 0), 
-    Text = "PAUL\nHUB", 
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.GothamBold,
-    TextSize = 12,
-    TextWrapped = true,
-    BorderSizePixel = 0, AutoButtonColor = false, ZIndex = 100, Active = true
+    Parent = gui, Size = UDim2.new(0, 60, 0, 60), Position = UDim2.new(0, 20, 0.5, -30), 
+    BackgroundColor3 = Color3.fromRGB(0, 0, 0), Text = "PAUL\nHUB", TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold, TextSize = 12, TextWrapped = true, BorderSizePixel = 0, AutoButtonColor = false, ZIndex = 100, Active = true
 })
 create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = icon }) 
 create("UIStroke", { Color = CFG.Accent, Thickness = 2, Parent = icon })
@@ -165,7 +167,7 @@ create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = sidebar })
 create("Frame", { Parent = sidebar, Size = UDim2.new(0, 10, 1, 0), Position = UDim2.new(1, -10, 0, 0), BackgroundColor3 = CFG.Panel, BorderSizePixel = 0 })
 
 local contentFrame = create("Frame", { Parent = main, Position = UDim2.new(0, sidebarWidth, 0, 36), Size = UDim2.new(1, -sidebarWidth, 1, -36), BackgroundTransparency = 1 })
-local TAB_NAMES = { "Keyless", "Misc" }
+local TAB_NAMES = { "Keyless", "Animations", "Misc" }
 local tabButtons = {}
 for i, name in ipairs(TAB_NAMES) do
     local btn = create("TextButton", { Parent = sidebar, Size = UDim2.new(1, -16, 0, 32), Position = UDim2.new(0, 8, 0, 10 + ((i-1) * 36)), BackgroundColor3 = CFG.Button, Text = name, TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 12, BorderSizePixel = 0 })
@@ -180,7 +182,7 @@ discordBtn.MouseButton1Click:Connect(function() if setclipboard then setclipboar
 local content = create("ScrollingFrame", { Parent = contentFrame, Position = UDim2.new(0, 10, 0, 10), Size = UDim2.new(1, -20, 1, -20), BackgroundTransparency = 1, BorderSizePixel = 0, ScrollBarThickness = 4, ScrollBarImageColor3 = CFG.Accent, CanvasSize = UDim2.new(0, 0, 0, 0), AutomaticCanvasSize = Enum.AutomaticSize.Y })
 create("UIListLayout", { Parent = content, Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder })
 
-local function clearContent() for _, c in ipairs(content:GetChildren()) do if c:IsA("TextButton") or c:IsA("TextLabel") or c:IsA("Frame") then c:Destroy() end end end
+local function clearContent() for _, c in ipairs(content:GetChildren()) do if c:IsA("TextButton") or c:IsA("TextLabel") or c:IsA("Frame") or c:IsA("TextBox") then c:Destroy() end end end
 local function makeButton(label, onClick)
     local btn = create("TextButton", { Parent = content, Size = UDim2.new(1, 0, 0, 38), BackgroundColor3 = CFG.Button, Text = "  " .. label, TextColor3 = CFG.Text, Font = Enum.Font.GothamMedium, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, BorderSizePixel = 0 })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = btn })
@@ -204,6 +206,30 @@ local function runScript(name, url)
     end)
 end
 
+-- ANIMATION LOGIC
+local function playAnim(animName, animId)
+    local char = LP.Character
+    if not char then return end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+    local animator = hum:FindFirstChildOfClass("Animator") or hum:WaitForChild("Animator", 2)
+
+    if currentTrack then currentTrack:Stop() currentTrack = nil end
+
+    local anim = Instance.new("Animation")
+    anim.AnimationId = "rbxassetid://" .. tostring(animId)
+    
+    local success, track = pcall(function() return animator:LoadAnimation(anim) end)
+    
+    if success and track then
+        track:Play()
+        currentTrack = track
+        game.StarterGui:SetCore("SendNotification", {Title="Animation"; Text="Playing "..animName; Duration=2})
+    else
+        game.StarterGui:SetCore("SendNotification", {Title="Error"; Text="Failed to play "..animName; Duration=2})
+    end
+end
+
 local function renderKeyless()
     clearContent()
     makeHeader("Available Scripts")
@@ -212,74 +238,65 @@ local function renderKeyless()
     end
 end
 
+local function renderAnimations()
+    clearContent()
+    makeHeader("Emotes / Dances")
+    for _, a in ipairs(ANIMS) do
+        makeButton(a.name, function() playAnim(a.name, a.id) end)
+    end
+    
+    makeHeader("Actions")
+    makeButton("Stop Animation", function()
+        if currentTrack then
+            currentTrack:Stop()
+            currentTrack = nil
+            game.StarterGui:SetCore("SendNotification", {Title="Animation"; Text="Stopped"; Duration=2})
+        end
+    end)
+end
+
 local function renderMisc()
     clearContent()
     makeHeader("Character Mods")
     
     -- SPEED ROW
     local spdFrame = create("Frame", { Parent = content, Size = UDim2.new(1, 0, 0, 38), BackgroundTransparency = 1 })
-    local spdBox = create("TextBox", { 
-        Parent = spdFrame, Size = UDim2.new(0.6, -4, 1, 0), BackgroundColor3 = CFG.Button, 
-        Text = tostring(State.SpeedValue), PlaceholderText = "Speed (e.g. 50)", 
-        TextColor3 = CFG.Text, Font = Enum.Font.GothamMedium, TextSize = 13, BorderSizePixel = 0 
-    })
+    local spdLabel = create("TextLabel", { Parent = spdFrame, Size = UDim2.new(0.25, 0, 1, 0), BackgroundColor3 = CFG.Button, Text = "Speed", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 13, BorderSizePixel = 0 })
+    create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = spdLabel })
+    
+    local spdBox = create("TextBox", { Parent = spdFrame, Position = UDim2.new(0.27, 0, 0, 0), Size = UDim2.new(0.35, 0, 1, 0), BackgroundColor3 = CFG.Button, Text = tostring(State.SpeedValue), PlaceholderText = "16", TextColor3 = CFG.Text, Font = Enum.Font.GothamMedium, TextSize = 13, BorderSizePixel = 0 })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = spdBox })
     spdBox.FocusLost:Connect(function()
         local val = tonumber(spdBox.Text)
-        if val and val >= 1 and val <= 500 then 
-            State.SpeedValue = val 
-        else 
-            spdBox.Text = tostring(State.SpeedValue) 
-        end
+        if val and val >= 1 and val <= 500 then State.SpeedValue = val else spdBox.Text = tostring(State.SpeedValue) end
     end)
     
-    local spdBtn = create("TextButton", { 
-        Parent = spdFrame, Position = UDim2.new(0.6, 4, 0, 0), Size = UDim2.new(0.4, 0, 1, 0), 
-        BackgroundColor3 = CFG.Button, Text = (State.SpeedEnabled and "ON" or "OFF"), 
-        TextColor3 = State.SpeedEnabled and CFG.Good or CFG.Text, Font = Enum.Font.GothamBold, TextSize = 13, BorderSizePixel = 0 
-    })
+    local spdBtn = create("TextButton", { Parent = spdFrame, Position = UDim2.new(0.64, 0, 0, 0), Size = UDim2.new(0.36, 0, 1, 0), BackgroundColor3 = CFG.Button, Text = (State.SpeedEnabled and "ON" or "OFF"), TextColor3 = State.SpeedEnabled and CFG.Good or CFG.Text, Font = Enum.Font.GothamBold, TextSize = 13, BorderSizePixel = 0 })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = spdBtn })
     spdBtn.MouseButton1Click:Connect(function()
         State.SpeedEnabled = not State.SpeedEnabled
         spdBtn.Text = (State.SpeedEnabled and "ON" or "OFF")
         spdBtn.TextColor3 = State.SpeedEnabled and CFG.Good or CFG.Text
-        if not State.SpeedEnabled then
-            local char = LP.Character
-            if char then local hum = char:FindFirstChildOfClass("Humanoid"); if hum then hum.WalkSpeed = 16 end end
-        end
     end)
 
     -- JUMP ROW
     local jmpFrame = create("Frame", { Parent = content, Size = UDim2.new(1, 0, 0, 38), BackgroundTransparency = 1 })
-    local jmpBox = create("TextBox", { 
-        Parent = jmpFrame, Size = UDim2.new(0.6, -4, 1, 0), BackgroundColor3 = CFG.Button, 
-        Text = tostring(State.JumpValue), PlaceholderText = "Jump (e.g. 50)", 
-        TextColor3 = CFG.Text, Font = Enum.Font.GothamMedium, TextSize = 13, BorderSizePixel = 0 
-    })
+    local jmpLabel = create("TextLabel", { Parent = jmpFrame, Size = UDim2.new(0.25, 0, 1, 0), BackgroundColor3 = CFG.Button, Text = "Jump", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 13, BorderSizePixel = 0 })
+    create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = jmpLabel })
+    
+    local jmpBox = create("TextBox", { Parent = jmpFrame, Position = UDim2.new(0.27, 0, 0, 0), Size = UDim2.new(0.35, 0, 1, 0), BackgroundColor3 = CFG.Button, Text = tostring(State.JumpValue), PlaceholderText = "50", TextColor3 = CFG.Text, Font = Enum.Font.GothamMedium, TextSize = 13, BorderSizePixel = 0 })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = jmpBox })
     jmpBox.FocusLost:Connect(function()
         local val = tonumber(jmpBox.Text)
-        if val and val >= 1 and val <= 500 then 
-            State.JumpValue = val 
-        else 
-            jmpBox.Text = tostring(State.JumpValue) 
-        end
+        if val and val >= 1 and val <= 500 then State.JumpValue = val else jmpBox.Text = tostring(State.JumpValue) end
     end)
     
-    local jmpBtn = create("TextButton", { 
-        Parent = jmpFrame, Position = UDim2.new(0.6, 4, 0, 0), Size = UDim2.new(0.4, 0, 1, 0), 
-        BackgroundColor3 = CFG.Button, Text = (State.JumpEnabled and "ON" or "OFF"), 
-        TextColor3 = State.JumpEnabled and CFG.Good or CFG.Text, Font = Enum.Font.GothamBold, TextSize = 13, BorderSizePixel = 0 
-    })
+    local jmpBtn = create("TextButton", { Parent = jmpFrame, Position = UDim2.new(0.64, 0, 0, 0), Size = UDim2.new(0.36, 0, 1, 0), BackgroundColor3 = CFG.Button, Text = (State.JumpEnabled and "ON" or "OFF"), TextColor3 = State.JumpEnabled and CFG.Good or CFG.Text, Font = Enum.Font.GothamBold, TextSize = 13, BorderSizePixel = 0 })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = jmpBtn })
     jmpBtn.MouseButton1Click:Connect(function()
         State.JumpEnabled = not State.JumpEnabled
         jmpBtn.Text = (State.JumpEnabled and "ON" or "OFF")
         jmpBtn.TextColor3 = State.JumpEnabled and CFG.Good or CFG.Text
-        if not State.JumpEnabled then
-            local char = LP.Character
-            if char then local hum = char:FindFirstChildOfClass("Humanoid"); if hum then hum.JumpPower = 50 end end
-        end
     end)
 
     makeHeader("Server Hop")
@@ -294,25 +311,20 @@ end
 
 local function showTab(idx)
     for i, btn in ipairs(tabButtons) do btn.BackgroundColor3 = (i == idx) and CFG.Accent or CFG.Button btn.TextColor3 = (i == idx) and Color3.new(1,1,1) or CFG.Text end
-    if TAB_NAMES[idx] == "Keyless" then renderKeyless() else renderMisc() end
+    if TAB_NAMES[idx] == "Keyless" then renderKeyless() 
+    elseif TAB_NAMES[idx] == "Animations" then renderAnimations()
+    else renderMisc() end
 end
 for i, btn in ipairs(tabButtons) do btn.MouseButton1Click:Connect(function() showTab(i) end) end
 
--- ============ BACKGROUND LOOP FOR SPEED/JUMP ============
+-- BACKGROUND LOOP FOR SPEED/JUMP
 RunService.Heartbeat:Connect(function()
     local char = LP.Character
     if char then
         local hum = char:FindFirstChildOfClass("Humanoid")
         if hum then
-            if State.SpeedEnabled and hum.WalkSpeed ~= State.SpeedValue then
-                hum.WalkSpeed = State.SpeedValue
-            end
-            if State.JumpEnabled then
-                hum.UseJumpPower = true
-                if hum.JumpPower ~= State.JumpValue then
-                    hum.JumpPower = State.JumpValue
-                end
-            end
+            if State.SpeedEnabled and hum.WalkSpeed ~= State.SpeedValue then hum.WalkSpeed = State.SpeedValue end
+            if State.JumpEnabled then hum.UseJumpPower = true; if hum.JumpPower ~= State.JumpValue then hum.JumpPower = State.JumpValue end end
         end
     end
 end)
