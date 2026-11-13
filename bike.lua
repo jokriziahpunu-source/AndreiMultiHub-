@@ -1,6 +1,7 @@
 --[[
-    PAUL HUB PRO (Clean UI)
-    Features: Separate Speed, Jump, and Server Hop Tabs
+    PAUL HUB (Bike for Egg)
+    Version: v1.0
+    Tabs: Speed / Jump / Server Hop
 ]]
 
 if getgenv().PaulHubRunning then
@@ -10,8 +11,8 @@ end
 getgenv().PaulHubRunning = true
 
 local CFG = {
-    Name    = "PAUL HUB PRO",
-    Version = "v6.0",
+    Name    = "PAUL HUB [BIKE]",
+    Version = "v1.0",
     Accent  = Color3.fromRGB(0, 150, 255),
     BG      = Color3.fromRGB(10, 15, 25),
     Panel   = Color3.fromRGB(5, 10, 20), 
@@ -39,17 +40,17 @@ local function create(class, props)
 end
 
 local parent = getParent()
-for _, name in ipairs({"PaulHubPro", "PaulThrowHub"}) do
+for _, name in ipairs({"PaulHubPro", "PaulThrowHub", "PaulHubBike"}) do
     local old = parent:FindFirstChild(name)
     if old then old:Destroy() end
 end
 
-local gui = create("ScreenGui", { Name = "PaulHubPro", ResetOnSpawn = false, Parent = parent })
+local gui = create("ScreenGui", { Name = "PaulHubBike", ResetOnSpawn = false, Parent = parent })
 if syn and syn.protect_gui then pcall(syn.protect_gui, gui) end
 
 local viewport = Camera and Camera.ViewportSize or Vector2.new(1280, 720)
 local winWidth  = math.min(400, math.max(300, viewport.X - 40))
-local winHeight = math.min(320, math.max(250, viewport.Y - 80))
+local winHeight = math.min(340, math.max(250, viewport.Y - 80))
 
 local main = create("Frame", {
     Name = "Main", Parent = gui, Size = UDim2.new(0, winWidth, 0, winHeight),
@@ -81,12 +82,12 @@ create("TextLabel", {
 -- MINIMIZE BUTTON (-)
 local minBtn = create("TextButton", { Parent = header, Position = UDim2.new(1, -70, 0, 8), Size = UDim2.new(0, 30, 0, 20), BackgroundColor3 = CFG.Button, Text = "-", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 20, BorderSizePixel = 0 })
 create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = minBtn })
-minBtn.MouseButton1Click:Connect(function() main.Visible = false end)
+minBtn.MouseButton1Click:Connect(function() main.Visible = false end) -- Hide only
 
 -- CLOSE BUTTON (X)
 local closeBtn = create("TextButton", { Parent = header, Position = UDim2.new(1, -35, 0, 8), Size = UDim2.new(0, 30, 0, 20), BackgroundColor3 = CFG.Button, Text = "X", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, BorderSizePixel = 0 })
 create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = closeBtn })
-closeBtn.MouseButton1Click:Connect(function() main.Visible = false end)
+closeBtn.MouseButton1Click:Connect(function() main.Visible = false end) -- Hide only
 
 -- Drag Main Window
 local dragMain, startMain, posMain
@@ -103,7 +104,7 @@ UIS.InputChanged:Connect(function(input)
 end)
 UIS.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragMain = false end end)
 
--- FLOATING ICON
+-- FLOATING ICON (DRAGGABLE)
 local icon = create("TextButton", {
     Parent = gui, Size = UDim2.new(0, 60, 0, 60), Position = UDim2.new(0, 20, 0.5, -30), 
     BackgroundColor3 = Color3.fromRGB(0, 0, 0), Text = "PAUL\nHUB", TextColor3 = Color3.fromRGB(255, 255, 255),
@@ -147,10 +148,13 @@ for i, name in ipairs(TAB_NAMES) do
     tabButtons[i] = btn
 end
 
--- DISCORD BUTTON
+-- JOIN DISCORD
 local discordBtn = create("TextButton", { Parent = sidebar, Size = UDim2.new(1, -16, 0, 34), Position = UDim2.new(0, 8, 1, -44), BackgroundColor3 = CFG.Button, Text = "Join Discord", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 11, BorderSizePixel = 0 })
 create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = discordBtn })
-discordBtn.MouseButton1Click:Connect(function() if setclipboard then setclipboard("https://discord.gg/Ukw8abnmH") end game.StarterGui:SetCore("SendNotification", {Title="Discord"; Text="Link Copied!"; Duration=2}) end)
+discordBtn.MouseButton1Click:Connect(function() 
+    if setclipboard then setclipboard("https://discord.gg/Ukw8abnmH") end 
+    game.StarterGui:SetCore("SendNotification", {Title="Discord"; Text="Link Copied!"; Duration=2})
+end)
 
 local content = create("Frame", { Parent = contentFrame, Position = UDim2.new(0, 10, 0, 10), Size = UDim2.new(1, -20, 1, -20), BackgroundTransparency = 1 })
 create("UIListLayout", { Parent = content, Padding = UDim.new(0, 10), SortOrder = Enum.SortOrder.LayoutOrder, VerticalAlignment = Enum.VerticalAlignment.Top })
@@ -160,7 +164,7 @@ local function makeHeader(text) create("TextLabel", { Parent = content, Size = U
 
 local function renderSpeed()
     clearContent()
-    makeHeader("Speed Modifier (1-1000)")
+    makeHeader("Speed (1 - 1000)")
     
     local spdBox = create("TextBox", { Parent = content, Size = UDim2.new(1, 0, 0, 40), BackgroundColor3 = CFG.Button, Text = tostring(State.SpeedValue), TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 16, BorderSizePixel = 0 })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = spdBox })
@@ -169,11 +173,11 @@ local function renderSpeed()
         if val and val >= 1 and val <= 1000 then State.SpeedValue = val else spdBox.Text = tostring(State.SpeedValue) end
     end)
     
-    local spdBtn = create("TextButton", { Parent = content, Size = UDim2.new(1, 0, 0, 45), BackgroundColor3 = State.SpeedEnabled and CFG.Good or CFG.Button, Text = (State.SpeedEnabled and "SPEED: ON" or "SPEED: OFF"), TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 15, BorderSizePixel = 0 })
+    local spdBtn = create("TextButton", { Parent = content, Size = UDim2.new(1, 0, 0, 45), BackgroundColor3 = State.SpeedEnabled and CFG.Good or CFG.Button, Text = (State.SpeedEnabled and "ENABLED" or "DISABLED"), TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 15, BorderSizePixel = 0 })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = spdBtn })
     spdBtn.MouseButton1Click:Connect(function()
         State.SpeedEnabled = not State.SpeedEnabled
-        spdBtn.Text = (State.SpeedEnabled and "SPEED: ON" or "SPEED: OFF")
+        spdBtn.Text = (State.SpeedEnabled and "ENABLED" or "DISABLED")
         spdBtn.BackgroundColor3 = State.SpeedEnabled and CFG.Good or CFG.Button
         if not State.SpeedEnabled then
             local char = LP.Character
@@ -184,7 +188,7 @@ end
 
 local function renderJump()
     clearContent()
-    makeHeader("Jump Modifier (1-1000)")
+    makeHeader("Jump (1 - 1000)")
     
     local jmpBox = create("TextBox", { Parent = content, Size = UDim2.new(1, 0, 0, 40), BackgroundColor3 = CFG.Button, Text = tostring(State.JumpValue), TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 16, BorderSizePixel = 0 })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = jmpBox })
@@ -193,11 +197,11 @@ local function renderJump()
         if val and val >= 1 and val <= 1000 then State.JumpValue = val else jmpBox.Text = tostring(State.JumpValue) end
     end)
     
-    local jmpBtn = create("TextButton", { Parent = content, Size = UDim2.new(1, 0, 0, 45), BackgroundColor3 = State.JumpEnabled and CFG.Good or CFG.Button, Text = (State.JumpEnabled and "JUMP: ON" or "JUMP: OFF"), TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 15, BorderSizePixel = 0 })
+    local jmpBtn = create("TextButton", { Parent = content, Size = UDim2.new(1, 0, 0, 45), BackgroundColor3 = State.JumpEnabled and CFG.Good or CFG.Button, Text = (State.JumpEnabled and "ENABLED" or "DISABLED"), TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 15, BorderSizePixel = 0 })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = jmpBtn })
     jmpBtn.MouseButton1Click:Connect(function()
         State.JumpEnabled = not State.JumpEnabled
-        jmpBtn.Text = (State.JumpEnabled and "JUMP: ON" or "JUMP: OFF")
+        jmpBtn.Text = (State.JumpEnabled and "ENABLED" or "DISABLED")
         jmpBtn.BackgroundColor3 = State.JumpEnabled and CFG.Good or CFG.Button
         if not State.JumpEnabled then
             local char = LP.Character
@@ -210,10 +214,10 @@ local function renderHop()
     clearContent()
     makeHeader("Server Hop")
     
-    local hopBtn = create("TextButton", { Parent = content, Size = UDim2.new(1, 0, 0, 45), BackgroundColor3 = CFG.Button, Text = "Hop to Low Player Server", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, BorderSizePixel = 0 })
+    local hopBtn = create("TextButton", { Parent = content, Size = UDim2.new(1, 0, 0, 45), BackgroundColor3 = CFG.Button, Text = "Hop to Lowest Server", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, BorderSizePixel = 0 })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = hopBtn })
     hopBtn.MouseButton1Click:Connect(function()
-        hopBtn.Text = "Finding Server..."
+        hopBtn.Text = "Finding..."
         hopBtn.BackgroundColor3 = Color3.fromRGB(200, 150, 0)
         local success, response = pcall(function() return HS:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")) end)
         if success and response and response.data then
@@ -225,9 +229,9 @@ local function renderHop()
                 end 
             end
         else
-            hopBtn.Text = "Failed to find server"
+            hopBtn.Text = "Failed"
             task.wait(2)
-            hopBtn.Text = "Hop to Low Player Server"
+            hopBtn.Text = "Hop to Lowest Server"
             hopBtn.BackgroundColor3 = CFG.Button
         end
     end)
@@ -245,7 +249,6 @@ end
 
 for i, btn in ipairs(tabButtons) do btn.MouseButton1Click:Connect(function() showTab(i) end) end
 
--- BACKGROUND LOOP FOR SPEED/JUMP
 RunService.Heartbeat:Connect(function()
     local char = LP.Character
     if char then
