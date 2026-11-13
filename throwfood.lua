@@ -1,9 +1,9 @@
 --[[
     PAUL HUB (Throw a Food for Animals)
-    Version: v5.0 (Instant Fire on Toggle)
+    Version: v7.0 (External Scripts Hub)
 ]]
 
--- KILL SWITCH: Papatayin nito yung mga lumang na-execute mo kanina
+-- KILL SWITCH: Papatayin nito yung mga lumang script na tumatakbo sa background
 if getgenv().PaulHubRunning then
     getgenv().PaulHubRunning = false
     task.wait(0.2) 
@@ -12,36 +12,36 @@ getgenv().PaulHubRunning = true
 
 local CFG = {
     Name    = "PAUL HUB",
-    Version = "v5.0",
+    Version = "v7.0",
     Accent  = Color3.fromRGB(255, 100, 0), 
     BG      = Color3.fromRGB(15, 15, 20),
     Panel   = Color3.fromRGB(0, 0, 0), 
     Button  = Color3.fromRGB(30, 30, 35),
+    Hover   = Color3.fromRGB(50, 50, 60),
     Text    = Color3.fromRGB(235, 235, 245),
     Good    = Color3.fromRGB(120, 220, 140),
+}
+
+-- ============ SCRIPTS ============
+local HUB_SCRIPTS = {
+    {
+        tab = "Keyless",
+        scripts = {
+            { name = "[Keyless] TORA (Auto Throw)", url = "https://raw.githubusercontent.com/gumanba/Scripts/main/ThrowFoodForAnimals" },
+            { name = "[Keyless] AKKIWI", url = "https://akkiwi.com/h" },
+            { name = "[Keyless] ANDREAN", url = "https://flowauth.net/v1/loaders/3953ac305b7855bd4108974b01f57bfd.lua" },
+            { name = "[Keyless] MATRIX", url = "https://raw.githubusercontent.com/ummarxfarooq/mystrix-hub/refs/heads/main/loader" },
+            { name = "[Keyless] AQUA", url = "https://scriptblox.com/raw/Throw-Food-For-Animals-AQUA-HUB-or-AUTO-BEST-ANIMAL-AUTOFARM-AUTO-TRAIN-234234" },
+        },
+    },
 }
 
 local UIS     = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local Camera  = workspace.CurrentCamera
 local LP      = Players.LocalPlayer
-local RS      = game:GetService("ReplicatedStorage")
-
--- REMOTES
-local Remotes = RS:WaitForChild("Remotes")
-local SellRemote = Remotes:WaitForChild("Plot_SellAnimal")
-local TrainRemote = Remotes:WaitForChild("Training_Start")
-local UpgradeRemote = Remotes:WaitForChild("Shop_Buy")
-local EquipRemote = Remotes:WaitForChild("Plot_EquipBest")
-local ThrowRemote = Remotes:WaitForChild("Throw_Start")
-
-local State = {
-    AutoThrow  = false,
-    EquipBest  = false,
-    AutoTrain  = false,
-    AutoUpgrade= false,
-    AutoBuy    = false,
-}
+local HS      = game:GetService("HttpService")
+local TS      = game:GetService("TeleportService")
 
 local function getParent()
     if gethui then return gethui() end
@@ -58,7 +58,7 @@ local function create(class, props)
 end
 
 local parent = getParent()
--- Linisin lahat ng lumang GUI para wala nang patung-patong
+-- Linisin lahat ng lumang GUI
 for _, name in ipairs({"PaulThrowHub", "CustomAndreanHub", "ThrowFoodHub", "PaulHubMenu"}) do
     local old = parent:FindFirstChild(name)
     if old then old:Destroy() end
@@ -95,9 +95,17 @@ create("TextLabel", {
     Font = Enum.Font.GothamBold, TextSize = 15, TextXAlignment = Enum.TextXAlignment.Left,
 })
 
--- CLOSE BUTTON (X) -> Magtatago lang
+-- MINIMIZE BUTTON (-)
+local minBtn = create("TextButton", { 
+    Parent = header, Position = UDim2.new(1, -70, 0, 8), Size = UDim2.new(0, 30, 0, 20), 
+    BackgroundColor3 = CFG.Button, Text = "-", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 20, BorderSizePixel = 0 
+})
+create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = minBtn })
+minBtn.MouseButton1Click:Connect(function() main.Visible = false end)
+
+-- CLOSE BUTTON (X)
 local closeBtn = create("TextButton", { 
-    Parent = header, Position = UDim2.new(1, -35, 0, 8), Size = UDim2.new(0, 25, 0, 20), 
+    Parent = header, Position = UDim2.new(1, -35, 0, 8), Size = UDim2.new(0, 30, 0, 20), 
     BackgroundColor3 = CFG.Button, Text = "X", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, BorderSizePixel = 0 
 })
 create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = closeBtn })
@@ -122,7 +130,7 @@ UIS.InputEnded:Connect(function(input)
     end
 end)
 
--- ============ FLOATING ICON ============
+-- FLOATING ICON
 local icon = create("ImageButton", {
     Parent = gui, Size = UDim2.new(0, 50, 0, 50),
     Position = UDim2.new(0, 20, 0.5, -25), 
@@ -157,7 +165,7 @@ icon.MouseButton1Click:Connect(function()
     main.Visible = not main.Visible
 end)
 
--- ============ SIDEBAR ============
+-- SIDEBAR
 local sidebarWidth = 120
 local sidebar = create("Frame", { Parent = main, Position = UDim2.new(0, 0, 0, 36), Size = UDim2.new(0, sidebarWidth, 1, -36), BackgroundColor3 = CFG.Panel, BorderSizePixel = 0 })
 create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = sidebar })
@@ -165,7 +173,7 @@ create("Frame", { Parent = sidebar, Size = UDim2.new(0, 10, 1, 0), Position = UD
 
 local contentFrame = create("Frame", { Parent = main, Position = UDim2.new(0, sidebarWidth, 0, 36), Size = UDim2.new(1, -sidebarWidth, 1, -36), BackgroundTransparency = 1 })
 
-local TAB_NAMES = { "Auto Farm", "Misc" }
+local TAB_NAMES = { "Keyless", "Misc" }
 local tabButtons = {}
 for i, name in ipairs(TAB_NAMES) do
     local btn = create("TextButton", {
@@ -176,6 +184,7 @@ for i, name in ipairs(TAB_NAMES) do
     tabButtons[i] = btn
 end
 
+-- Join Discord Button
 local discordBtn = create("TextButton", {
     Parent = sidebar, Size = UDim2.new(1, -16, 0, 34), Position = UDim2.new(0, 8, 1, -44), 
     BackgroundColor3 = CFG.Button, Text = "Join Discord", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 12, BorderSizePixel = 0,
@@ -183,6 +192,7 @@ local discordBtn = create("TextButton", {
 create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = discordBtn })
 discordBtn.MouseButton1Click:Connect(function()
     if setclipboard then setclipboard("https://discord.gg/Ukw8abnmH") end
+    game.StarterGui:SetCore("SendNotification", {Title="Discord"; Text="Link Copied!"; Duration=2})
 end)
 
 local content = create("ScrollingFrame", {
@@ -209,74 +219,44 @@ local function makeHeader(text)
     create("TextLabel", { Parent = content, Size = UDim2.new(1, 0, 0, 20), BackgroundTransparency = 1, Text = text, TextColor3 = CFG.Accent, Font = Enum.Font.GothamBold, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left })
 end
 
-local function renderAutoFarm()
-    clearContent()
-    makeHeader("Auto Features")
-    
-    local throwBtn = makeButton("Auto Throw: " .. (State.AutoThrow and "ON" or "OFF"), function() end)
-    throwBtn.MouseButton1Click:Connect(function()
-        State.AutoThrow = not State.AutoThrow
-        throwBtn.Text = "  Auto Throw: " .. (State.AutoThrow and "ON" or "OFF")
-        throwBtn.TextColor3 = State.AutoThrow and CFG.Good or CFG.Text
-        if State.AutoThrow then pcall(function() ThrowRemote:InvokeServer() end) end -- INSTANT FIRE
-    end)
-    throwBtn.TextColor3 = State.AutoThrow and CFG.Good or CFG.Text
-
-    local equipBtn = makeButton("Auto Equip Best: " .. (State.EquipBest and "ON" or "OFF"), function() end)
-    equipBtn.MouseButton1Click:Connect(function()
-        State.EquipBest = not State.EquipBest
-        equipBtn.Text = "  Auto Equip Best: " .. (State.EquipBest and "ON" or "OFF")
-        equipBtn.TextColor3 = State.EquipBest and CFG.Good or CFG.Text
-        if State.EquipBest then pcall(function() EquipRemote:InvokeServer() end) end -- INSTANT FIRE
-    end)
-    equipBtn.TextColor3 = State.EquipBest and CFG.Good or CFG.Text
-
-    local trainBtn = makeButton("Auto Train: " .. (State.AutoTrain and "ON" or "OFF"), function() end)
-    trainBtn.MouseButton1Click:Connect(function()
-        State.AutoTrain = not State.AutoTrain
-        trainBtn.Text = "  Auto Train: " .. (State.AutoTrain and "ON" or "OFF")
-        trainBtn.TextColor3 = State.AutoTrain and CFG.Good or CFG.Text
-        if State.AutoTrain then pcall(function() TrainRemote:InvokeServer() end) end -- INSTANT FIRE
-    end)
-    trainBtn.TextColor3 = State.AutoTrain and CFG.Good or CFG.Text
-
-    local upgBtn = makeButton("Auto Upgrade: " .. (State.AutoUpgrade and "ON" or "OFF"), function() end)
-    upgBtn.MouseButton1Click:Connect(function()
-        State.AutoUpgrade = not State.AutoUpgrade
-        upgBtn.Text = "  Auto Upgrade: " .. (State.AutoUpgrade and "ON" or "OFF")
-        upgBtn.TextColor3 = State.AutoUpgrade and CFG.Good or CFG.Text
-        if State.AutoUpgrade then pcall(function() UpgradeRemote:InvokeServer(25) end) end -- INSTANT FIRE
-    end)
-    upgBtn.TextColor3 = State.AutoUpgrade and CFG.Good or CFG.Text
-
-    local buyBtn = makeButton("Auto Buy: " .. (State.AutoBuy and "ON" or "OFF"), function() end)
-    buyBtn.MouseButton1Click:Connect(function()
-        State.AutoBuy = not State.AutoBuy
-        buyBtn.Text = "  Auto Buy: " .. (State.AutoBuy and "ON" or "OFF")
-        buyBtn.TextColor3 = State.AutoBuy and CFG.Good or CFG.Text
-        if State.AutoBuy then pcall(function() UpgradeRemote:InvokeServer(25) end) end -- INSTANT FIRE
-    end)
-    buyBtn.TextColor3 = State.AutoBuy and CFG.Good or CFG.Text
-
-    makeHeader("Actions")
-    makeButton("Auto Sell (Instant)", function()
-        pcall(function()
-            local args = { [1] = "a154" }
-            SellRemote:InvokeServer(unpack(args))
+local function runScript(name, url)
+    game.StarterGui:SetCore("SendNotification", {Title="Paul Hub"; Text="Loading " .. name .. "..."; Duration=2})
+    task.spawn(function()
+        local ok, err = pcall(function()
+            local src = game:HttpGet(url)
+            local fn = loadstring(src)
+            if type(fn) ~= "function" then error("loadstring returned nil") end
+            fn()
         end)
+        if not ok then
+            game.StarterGui:SetCore("SendNotification", {Title="Paul Hub"; Text="Failed to load " .. name; Duration=3})
+            warn("[" .. CFG.Name .. "] " .. name .. " failed: " .. tostring(err))
+        end
     end)
+end
+
+local function renderKeyless()
+    clearContent()
+    makeHeader("Available Scripts")
+    for _, s in ipairs(HUB_SCRIPTS[1].scripts) do
+        makeButton(s.name, function() runScript(s.name, s.url) end)
+    end
 end
 
 local function renderMisc()
     clearContent()
     makeHeader("Server Hop")
     makeButton("Server Hop (Low Players)", function()
-        local servers = game:GetService("HttpService"):JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")).data
-        table.sort(servers, function(a,b) return a.playing < b.playing end)
-        for _, s in ipairs(servers) do
-            if s.id ~= game.JobId and s.playing < s.maxPlayers then
-                game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, s.id, LP)
-                break
+        local success, response = pcall(function()
+            return HS:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
+        end)
+        if success and response and response.data then
+            table.sort(response.data, function(a,b) return a.playing < b.playing end)
+            for _, s in ipairs(response.data) do
+                if s.id ~= game.JobId and s.playing < s.maxPlayers then
+                    TS:TeleportToPlaceInstance(game.PlaceId, s.id, LP)
+                    break
+                end
             end
         end
     end)
@@ -287,25 +267,9 @@ local function showTab(idx)
         btn.BackgroundColor3 = (i == idx) and CFG.Accent or CFG.Button 
         btn.TextColor3 = (i == idx) and Color3.new(1,1,1) or CFG.Text
     end
-    if TAB_NAMES[idx] == "Auto Farm" then renderAutoFarm() else renderMisc() end
+    if TAB_NAMES[idx] == "Keyless" then renderKeyless() else renderMisc() end
 end
 
 for i, btn in ipairs(tabButtons) do btn.MouseButton1Click:Connect(function() showTab(i) end) end
-
--- ============ LOGIC LOOP (Fast, No Delay on start) ============
-task.spawn(function()
-    while getgenv().PaulHubRunning do
-        if State.AutoTrain then pcall(function() TrainRemote:InvokeServer() end) end
-        if State.AutoUpgrade then pcall(function() UpgradeRemote:InvokeServer(25) end) end
-        if State.EquipBest then pcall(function() EquipRemote:InvokeServer() end) end
-        if State.AutoBuy then pcall(function() UpgradeRemote:InvokeServer(25) end) end
-        
-        if State.AutoThrow then
-            pcall(function() ThrowRemote:InvokeServer() end)
-        end
-        
-        task.wait(0.1) -- Napakabilis na delay, safe pa rin sa server
-    end
-end)
 
 showTab(1)
