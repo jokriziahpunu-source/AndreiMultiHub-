@@ -1,6 +1,6 @@
 --[[
     PAUL HUB PRO (Throw a Food for Animals)
-    Version: v4.2 (Working Labels + Animations)
+    Version: v4.3 (New Scripts Added + Key System Tab)
 ]]
 
 if getgenv().PaulHubRunning then
@@ -11,7 +11,7 @@ getgenv().PaulHubRunning = true
 
 local CFG = {
     Name    = "PAUL HUB PRO",
-    Version = "v4.2",
+    Version = "v4.3",
     Accent  = Color3.fromRGB(0, 150, 255),
     BG      = Color3.fromRGB(10, 15, 25),
     Panel   = Color3.fromRGB(5, 10, 20), 
@@ -31,6 +31,17 @@ local HUB_SCRIPTS = {
             { name = "[Keyless] ANDREAN", url = "https://flowauth.net/v1/loaders/3953ac305b7855bd4108974b01f57bfd.lua" },
             { name = "[Keyless] MATRIX", url = "https://raw.githubusercontent.com/ummarxfarooq/mystrix-hub/refs/heads/main/loader" },
             { name = "[Keyless] AQUA", url = "https://scriptblox.com/raw/Throw-Food-For-Animals-AQUA-HUB-or-AUTO-BEST-ANIMAL-AUTOFARM-AUTO-TRAIN-234234" },
+            { name = "[Keyless] OUROBOROS", url = "https://raw.githubusercontent.com/joustingmatch/Ouroboros/main/loader.lua" },
+            { name = "[Keyless] AJJANS", url = "https://api.luarmor.net/files/v4/loaders/359e97f8618e9008afe5f496184ebb7c.lua" },
+            { name = "[Keyless] AZOTH", url = "https://raw.githubusercontent.com/Azoth666/AZOTH/main/loader.lua" },
+            { name = "[Keyless] NOCTARION", url = "https://nhmain.vercel.app/Loader/Main.lua" },
+            { name = "[Keyless] MONDIETY", url = "https://moondiety.com/loader" },
+        },
+    },
+    {
+        tab = "Key System",
+        scripts = {
+            { name = "[Key] SCHOOL HUB", url = "https://raw.githubusercontent.com/suzukir987/School-Hub/main/loader.lua" },
         },
     },
 }
@@ -79,7 +90,7 @@ if syn and syn.protect_gui then pcall(syn.protect_gui, gui) end
 
 local viewport = Camera and Camera.ViewportSize or Vector2.new(1280, 720)
 local winWidth  = math.min(500, math.max(350, viewport.X - 40))
-local winHeight = math.min(400, math.max(300, viewport.Y - 80))
+local winHeight = math.min(420, math.max(320, viewport.Y - 80))
 
 local main = create("Frame", {
     Name = "Main", Parent = gui, Size = UDim2.new(0, winWidth, 0, winHeight),
@@ -167,7 +178,7 @@ create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = sidebar })
 create("Frame", { Parent = sidebar, Size = UDim2.new(0, 10, 1, 0), Position = UDim2.new(1, -10, 0, 0), BackgroundColor3 = CFG.Panel, BorderSizePixel = 0 })
 
 local contentFrame = create("Frame", { Parent = main, Position = UDim2.new(0, sidebarWidth, 0, 36), Size = UDim2.new(1, -sidebarWidth, 1, -36), BackgroundTransparency = 1 })
-local TAB_NAMES = { "Keyless", "Animations", "Misc" }
+local TAB_NAMES = { "Keyless", "Key System", "Animations", "Misc" }
 local tabButtons = {}
 for i, name in ipairs(TAB_NAMES) do
     local btn = create("TextButton", { Parent = sidebar, Size = UDim2.new(1, -16, 0, 32), Position = UDim2.new(0, 8, 0, 10 + ((i-1) * 36)), BackgroundColor3 = CFG.Button, Text = name, TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 12, BorderSizePixel = 0 })
@@ -230,10 +241,10 @@ local function playAnim(animName, animId)
     end
 end
 
-local function renderKeyless()
+local function renderScripts(scripts)
     clearContent()
     makeHeader("Available Scripts")
-    for _, s in ipairs(HUB_SCRIPTS[1].scripts) do
+    for _, s in ipairs(scripts) do
         makeButton(s.name, function() runScript(s.name, s.url) end)
     end
 end
@@ -311,7 +322,8 @@ end
 
 local function showTab(idx)
     for i, btn in ipairs(tabButtons) do btn.BackgroundColor3 = (i == idx) and CFG.Accent or CFG.Button btn.TextColor3 = (i == idx) and Color3.new(1,1,1) or CFG.Text end
-    if TAB_NAMES[idx] == "Keyless" then renderKeyless() 
+    if TAB_NAMES[idx] == "Keyless" then renderScripts(HUB_SCRIPTS[1].scripts)
+    elseif TAB_NAMES[idx] == "Key System" then renderScripts(HUB_SCRIPTS[2].scripts)
     elseif TAB_NAMES[idx] == "Animations" then renderAnimations()
     else renderMisc() end
 end
