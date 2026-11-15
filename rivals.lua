@@ -1,6 +1,6 @@
 --[[
-    PAUL HUB [RIVALS] - Simple Edition
-    Version: v5.1 (Working Discord Tab)
+    PAUL HUB [RIVALS] - Readable Edition
+    Version: v6.1 (Server Picker)
 ]]
 
 if getgenv().PaulHubRunning then
@@ -11,14 +11,14 @@ getgenv().PaulHubRunning = true
 
 local CFG = {
     Name    = "PAUL HUB",
-    Version = "v5.1",
+    Version = "v6.1",
     Accent  = Color3.fromRGB(0, 150, 255),
     BG      = Color3.fromRGB(15, 15, 20),
     Panel   = Color3.fromRGB(10, 10, 15), 
-    Button  = Color3.fromRGB(25, 25, 30),
-    Text    = Color3.fromRGB(235, 235, 245),
-    SubText = Color3.fromRGB(150, 150, 165),
-    Good    = Color3.fromRGB(0, 150, 255),
+    Button  = Color3.fromRGB(30, 30, 40),
+    Text    = Color3.fromRGB(255, 255, 255), 
+    SubText = Color3.fromRGB(180, 180, 190),
+    Good    = Color3.fromRGB(0, 200, 100),
 }
 
 local HUB_SCRIPTS = {
@@ -46,12 +46,12 @@ local function create(class, props)
 end
 
 local parent = getParent()
-for _, name in ipairs({"PaulHubSimple"}) do
+for _, name in ipairs({"PaulHubReadable"}) do
     local old = parent:FindFirstChild(name)
     if old then old:Destroy() end
 end
 
-local gui = create("ScreenGui", { Name = "PaulHubSimple", ResetOnSpawn = false, Parent = parent })
+local gui = create("ScreenGui", { Name = "PaulHubReadable", ResetOnSpawn = false, Parent = parent })
 if syn and syn.protect_gui then pcall(syn.protect_gui, gui) end
 
 local viewport = Camera and Camera.ViewportSize or Vector2.new(1280, 720)
@@ -64,27 +64,27 @@ local main = create("Frame", {
     BackgroundColor3 = CFG.BG, BorderSizePixel = 0, Active = true,
 })
 create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = main })
-create("UIStroke", { Color = CFG.Accent, Thickness = 1.5, Parent = main })
+create("UIStroke", { Color = CFG.Accent, Thickness = 2, Parent = main })
 
 -- Header
-local header = create("Frame", { Parent = main, Size = UDim2.new(1, 0, 0, 36), BackgroundColor3 = CFG.Panel, BorderSizePixel = 0 })
+local header = create("Frame", { Parent = main, Size = UDim2.new(1, 0, 0, 40), BackgroundColor3 = CFG.Panel, BorderSizePixel = 0 })
 create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = header })
 create("Frame", { Parent = header, Size = UDim2.new(1, 0, 0, 10), Position = UDim2.new(0, 0, 1, -10), BackgroundColor3 = CFG.Panel, BorderSizePixel = 0 })
 
 local headerLogo = create("TextLabel", {
-    Parent = header, Position = UDim2.new(0, 10, 0, 8), Size = UDim2.new(0, 24, 0, 24),
-    BackgroundColor3 = Color3.fromRGB(0, 0, 0), Text = "PH", TextColor3 = CFG.Accent, Font = Enum.Font.GothamBlack, TextSize = 12, BorderSizePixel = 0
+    Parent = header, Position = UDim2.new(0, 10, 0, 8), Size = UDim2.new(0, 26, 0, 26),
+    BackgroundColor3 = Color3.fromRGB(0, 0, 0), Text = "PH", TextColor3 = CFG.Accent, Font = Enum.Font.GothamBlack, TextSize = 14, BorderSizePixel = 0
 })
 create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = headerLogo })
-create("UIStroke", { Color = CFG.Accent, Thickness = 1.5, Parent = headerLogo })
+create("UIStroke", { Color = CFG.Accent, Thickness = 2, Parent = headerLogo })
 
 create("TextLabel", {
-    Parent = header, Position = UDim2.new(0, 42, 0, 0), Size = UDim2.new(1, -70, 1, 0),
-    BackgroundTransparency = 1, Text = CFG.Name .. " | RIVALS", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left,
+    Parent = header, Position = UDim2.new(0, 46, 0, 0), Size = UDim2.new(1, -70, 1, 0),
+    BackgroundTransparency = 1, Text = CFG.Name .. " | RIVALS", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 16, TextXAlignment = Enum.TextXAlignment.Left,
 })
 
-local minBtn = create("TextButton", { Parent = header, Position = UDim2.new(1, -60, 0, 10), Size = UDim2.new(0, 24, 0, 20), BackgroundTransparency = 1, Text = "-", TextColor3 = CFG.SubText, Font = Enum.Font.GothamBold, TextSize = 20 })
-local closeBtn = create("TextButton", { Parent = header, Position = UDim2.new(1, -30, 0, 10), Size = UDim2.new(0, 24, 0, 20), BackgroundTransparency = 1, Text = "X", TextColor3 = CFG.SubText, Font = Enum.Font.GothamBold, TextSize = 14 })
+local minBtn = create("TextButton", { Parent = header, Position = UDim2.new(1, -60, 0, 10), Size = UDim2.new(0, 24, 0, 20), BackgroundTransparency = 1, Text = "-", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 22 })
+local closeBtn = create("TextButton", { Parent = header, Position = UDim2.new(1, -30, 0, 10), Size = UDim2.new(0, 24, 0, 20), BackgroundTransparency = 1, Text = "X", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 16 })
 
 minBtn.MouseButton1Click:Connect(function() main.Visible = false end)
 closeBtn.MouseButton1Click:Connect(function() main.Visible = false end)
@@ -105,16 +105,16 @@ end)
 UIS.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragMain = false end end)
 
 -- SIDEBAR
-local sidebarWidth = 110
-local sidebar = create("Frame", { Parent = main, Position = UDim2.new(0, 0, 0, 36), Size = UDim2.new(0, sidebarWidth, 1, -36), BackgroundColor3 = CFG.Panel, BorderSizePixel = 0 })
+local sidebarWidth = 115
+local sidebar = create("Frame", { Parent = main, Position = UDim2.new(0, 0, 0, 40), Size = UDim2.new(0, sidebarWidth, 1, -40), BackgroundColor3 = CFG.Panel, BorderSizePixel = 0 })
 create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = sidebar })
 create("Frame", { Parent = sidebar, Size = UDim2.new(0, 10, 1, 0), Position = UDim2.new(1, -10, 0, 0), BackgroundColor3 = CFG.Panel, BorderSizePixel = 0 })
 
-local contentFrame = create("Frame", { Parent = main, Position = UDim2.new(0, sidebarWidth, 0, 36), Size = UDim2.new(1, -sidebarWidth, 1, -36), BackgroundTransparency = 1 })
+local contentFrame = create("Frame", { Parent = main, Position = UDim2.new(0, sidebarWidth, 0, 40), Size = UDim2.new(1, -sidebarWidth, 1, -40), BackgroundTransparency = 1 })
 local TAB_NAMES = { "Scripts", "Misc", "Server Hop", "Discord" }
 local tabButtons = {}
 for i, name in ipairs(TAB_NAMES) do
-    local btn = create("TextButton", { Parent = sidebar, Size = UDim2.new(1, -16, 0, 32), Position = UDim2.new(0, 8, 0, 10 + ((i-1) * 36)), BackgroundColor3 = CFG.Button, Text = name, TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 12, BorderSizePixel = 0 })
+    local btn = create("TextButton", { Parent = sidebar, Size = UDim2.new(1, -16, 0, 34), Position = UDim2.new(0, 8, 0, 10 + ((i-1) * 38)), BackgroundColor3 = CFG.Button, Text = name, TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 13, BorderSizePixel = 0 })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = btn })
     tabButtons[i] = btn
 end
@@ -124,7 +124,7 @@ create("UIListLayout", { Parent = content, Padding = UDim.new(0, 6), SortOrder =
 
 local function clearContent() for _, c in ipairs(content:GetChildren()) do if c:IsA("TextButton") or c:IsA("TextLabel") or c:IsA("Frame") or c:IsA("TextBox") then c:Destroy() end end end
 local function makeButton(label, onClick)
-    local btn = create("TextButton", { Parent = content, Size = UDim2.new(1, 0, 0, 35), BackgroundColor3 = CFG.Button, Text = "  " .. label, TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, BorderSizePixel = 0 })
+    local btn = create("TextButton", { Parent = content, Size = UDim2.new(1, 0, 0, 40), BackgroundColor3 = CFG.Button, Text = "  " .. label, TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left, BorderSizePixel = 0 })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = btn })
     btn.MouseButton1Click:Connect(onClick)
     return btn
@@ -155,16 +155,16 @@ end
 local function renderMisc()
     clearContent()
     
-    -- SPEED
-    local spdFrame = create("Frame", { Parent = content, Size = UDim2.new(1, 0, 0, 38), BackgroundTransparency = 1 })
-    create("TextLabel", { Parent = spdFrame, Size = UDim2.new(0.3, 0, 1, 0), BackgroundColor3 = CFG.Button, Text = "  Speed", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left })
-    local spdBox = create("TextBox", { Parent = spdFrame, Position = UDim2.new(0.32, 0, 0, 0), Size = UDim2.new(0.35, 0, 1, 0), BackgroundColor3 = CFG.Button, Text = tostring(State.SpeedVal), TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 13, BorderSizePixel = 0 })
+    -- SPEED ROW
+    local spdFrame = create("Frame", { Parent = content, Size = UDim2.new(1, 0, 0, 42), BackgroundTransparency = 1 })
+    create("TextLabel", { Parent = spdFrame, Size = UDim2.new(0.3, 0, 1, 0), BackgroundColor3 = CFG.Button, Text = "  Speed", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left })
+    local spdBox = create("TextBox", { Parent = spdFrame, Position = UDim2.new(0.32, 0, 0, 0), Size = UDim2.new(0.35, 0, 1, 0), BackgroundColor3 = CFG.Button, Text = tostring(State.SpeedVal), TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, BorderSizePixel = 0 })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = spdBox })
     spdBox.FocusLost:Connect(function()
         local val = tonumber(spdBox.Text)
         if val and val >= 1 and val <= 1000 then State.SpeedVal = val else spdBox.Text = tostring(State.SpeedVal) end
     end)
-    local spdBtn = create("TextButton", { Parent = spdFrame, Position = UDim2.new(0.68, 0, 0, 0), Size = UDim2.new(0.32, 0, 1, 0), BackgroundColor3 = State.SpeedOn and CFG.Good or CFG.Button, Text = State.SpeedOn and "ON" or "OFF", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 13, BorderSizePixel = 0 })
+    local spdBtn = create("TextButton", { Parent = spdFrame, Position = UDim2.new(0.68, 0, 0, 0), Size = UDim2.new(0.32, 0, 1, 0), BackgroundColor3 = State.SpeedOn and CFG.Good or CFG.Button, Text = State.SpeedOn and "ON" or "OFF", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, BorderSizePixel = 0 })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = spdBtn })
     spdBtn.MouseButton1Click:Connect(function()
         State.SpeedOn = not State.SpeedOn
@@ -176,16 +176,16 @@ local function renderMisc()
         end
     end)
 
-    -- JUMP
-    local jmpFrame = create("Frame", { Parent = content, Size = UDim2.new(1, 0, 0, 38), BackgroundTransparency = 1 })
-    create("TextLabel", { Parent = jmpFrame, Size = UDim2.new(0.3, 0, 1, 0), BackgroundColor3 = CFG.Button, Text = "  Jump", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left })
-    local jmpBox = create("TextBox", { Parent = jmpFrame, Position = UDim2.new(0.32, 0, 0, 0), Size = UDim2.new(0.35, 0, 1, 0), BackgroundColor3 = CFG.Button, Text = tostring(State.JumpVal), TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 13, BorderSizePixel = 0 })
+    -- JUMP ROW
+    local jmpFrame = create("Frame", { Parent = content, Size = UDim2.new(1, 0, 0, 42), BackgroundTransparency = 1 })
+    create("TextLabel", { Parent = jmpFrame, Size = UDim2.new(0.3, 0, 1, 0), BackgroundColor3 = CFG.Button, Text = "  Jump", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left })
+    local jmpBox = create("TextBox", { Parent = jmpFrame, Position = UDim2.new(0.32, 0, 0, 0), Size = UDim2.new(0.35, 0, 1, 0), BackgroundColor3 = CFG.Button, Text = tostring(State.JumpVal), TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, BorderSizePixel = 0 })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = jmpBox })
     jmpBox.FocusLost:Connect(function()
         local val = tonumber(jmpBox.Text)
         if val and val >= 1 and val <= 1000 then State.JumpVal = val else jmpBox.Text = tostring(State.JumpVal) end
     end)
-    local jmpBtn = create("TextButton", { Parent = jmpFrame, Position = UDim2.new(0.68, 0, 0, 0), Size = UDim2.new(0.32, 0, 1, 0), BackgroundColor3 = State.JumpOn and CFG.Good or CFG.Button, Text = State.JumpOn and "ON" or "OFF", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 13, BorderSizePixel = 0 })
+    local jmpBtn = create("TextButton", { Parent = jmpFrame, Position = UDim2.new(0.68, 0, 0, 0), Size = UDim2.new(0.32, 0, 1, 0), BackgroundColor3 = State.JumpOn and CFG.Good or CFG.Button, Text = State.JumpOn and "ON" or "OFF", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, BorderSizePixel = 0 })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = jmpBtn })
     jmpBtn.MouseButton1Click:Connect(function()
         State.JumpOn = not State.JumpOn
@@ -200,30 +200,73 @@ end
 
 local function renderHop()
     clearContent()
-    makeButton("Server Hop (Lowest Players)", function()
-        game.StarterGui:SetCore("SendNotification", {Title="Server Hop"; Text="Searching..."; Duration=2})
-        local success, response = pcall(function() return HS:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")) end)
-        if success and response and response.data then
-            table.sort(response.data, function(a,b) return a.playing < b.playing end)
-            for _, s in ipairs(response.data) do 
-                if s.id ~= game.JobId and s.playing < s.maxPlayers then 
-                    TS:TeleportToPlaceInstance(game.PlaceId, s.id, LP) 
-                    break 
-                end 
-            end
+    local fetchBtn = create("TextButton", { Parent = content, Size = UDim2.new(1, 0, 0, 40), BackgroundColor3 = CFG.Accent, Text = "Refresh Servers (Max 20 Players)", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, BorderSizePixel = 0 })
+    create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = fetchBtn })
+    
+    local listFrame = create("ScrollingFrame", { Parent = content, Size = UDim2.new(1, 0, 0, 250), BackgroundTransparency = 1, BorderSizePixel = 0, ScrollBarThickness = 4, CanvasSize = UDim2.new(0,0,0,0), AutomaticCanvasSize = Enum.AutomaticSize.Y })
+    create("UIListLayout", { Parent = listFrame, Padding = UDim.new(0, 5) })
+    
+    local function loadServers()
+        for _, c in ipairs(listFrame:GetChildren()) do
+            if c:IsA("TextButton") or c:IsA("TextLabel") then c:Destroy() end
         end
+        
+        local loading = create("TextLabel", { Parent = listFrame, Size = UDim2.new(1, 0, 0, 30), BackgroundTransparency = 1, Text = "Fetching servers...", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left })
+        
+        task.spawn(function()
+            local success, response = pcall(function()
+                return HS:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Desc&limit=100"))
+            end)
+            
+            if loading then loading:Destroy() end
+            
+            if success and response and response.data then
+                local servers = response.data
+                -- Sort highest to lowest
+                table.sort(servers, function(a,b) return a.playing > b.playing end)
+                
+                local found = 0
+                for _, s in ipairs(servers) do
+                    if s.playing > 0 and s.playing <= 20 and s.id ~= game.JobId then
+                        found = found + 1
+                        local btn = create("TextButton", { Parent = listFrame, Size = UDim2.new(1, 0, 0, 35), BackgroundColor3 = CFG.Button, Text = "  [" .. s.playing .. "/" .. s.maxPlayers .. "] Join Server", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, BorderSizePixel = 0 })
+                        create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = btn })
+                        btn.MouseButton1Click:Connect(function()
+                            btn.Text = "  Teleporting..."
+                            btn.BackgroundColor3 = CFG.Good
+                            TS:TeleportToPlaceInstance(game.PlaceId, s.id, LP)
+                        end)
+                    end
+                end
+                
+                if found == 0 then
+                    create("TextLabel", { Parent = listFrame, Size = UDim2.new(1, 0, 0, 30), BackgroundTransparency = 1, Text = "No servers with 1-20 players found.", TextColor3 = CFG.Text, Font = Enum.Font.Gotham, TextSize = 13 })
+                end
+            else
+                create("TextLabel", { Parent = listFrame, Size = UDim2.new(1, 0, 0, 30), BackgroundTransparency = 1, Text = "Failed to fetch servers.", TextColor3 = Color3.fromRGB(255,100,100), Font = Enum.Font.Gotham, TextSize = 13 })
+            end
+        end)
+    end
+    
+    fetchBtn.MouseButton1Click:Connect(function()
+        fetchBtn.Text = "Refreshing..."
+        loadServers()
+        task.wait(1)
+        fetchBtn.Text = "Refresh Servers (Max 20 Players)"
     end)
+    
+    loadServers() -- Load initially
 end
 
 local function renderDiscord()
     clearContent()
     
-    create("TextLabel", { Parent = content, Size = UDim2.new(1, 0, 0, 25), BackgroundTransparency = 1, Text = "Join our Discord Server!", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 15, TextXAlignment = Enum.TextXAlignment.Left })
+    create("TextLabel", { Parent = content, Size = UDim2.new(1, 0, 0, 30), BackgroundTransparency = 1, Text = "Join our Discord Server!", TextColor3 = CFG.Text, Font = Enum.Font.GothamBold, TextSize = 16, TextXAlignment = Enum.TextXAlignment.Left })
     
-    local linkFrame = create("Frame", { Parent = content, Size = UDim2.new(1, 0, 0, 40), BackgroundColor3 = CFG.Button })
+    local linkFrame = create("Frame", { Parent = content, Size = UDim2.new(1, 0, 0, 45), BackgroundColor3 = CFG.Button })
     create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = linkFrame })
     
-    create("TextLabel", { Parent = linkFrame, Size = UDim2.new(1, -20, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "https://discord.gg/Ukw8abnmH", TextColor3 = CFG.Good, Font = Enum.Font.GothamBold, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left })
+    create("TextLabel", { Parent = linkFrame, Size = UDim2.new(1, -20, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "https://discord.gg/Ukw8abnmH", TextColor3 = CFG.Accent, Font = Enum.Font.GothamBold, TextSize = 15, TextXAlignment = Enum.TextXAlignment.Left })
 
     makeButton("Copy Link", function()
         if setclipboard then setclipboard("https://discord.gg/Ukw8abnmH") end
@@ -257,12 +300,12 @@ end)
 
 -- FLOATING ICON
 local icon = create("TextButton", {
-    Parent = gui, Size = UDim2.new(0, 60, 0, 60), Position = UDim2.new(0, 20, 0.5, -30), 
-    BackgroundColor3 = Color3.fromRGB(0, 0, 0), Text = "PAUL\nHUB", TextColor3 = CFG.Accent,
-    Font = Enum.Font.GothamBlack, TextSize = 13, TextWrapped = true, BorderSizePixel = 0, AutoButtonColor = false, ZIndex = 100, Active = true
+    Parent = gui, Size = UDim2.new(0, 65, 0, 65), Position = UDim2.new(0, 20, 0.5, -32), 
+    BackgroundColor3 = Color3.fromRGB(0, 0, 0), Text = "PAUL\nHUB", TextColor3 = CFG.Text,
+    Font = Enum.Font.GothamBlack, TextSize = 15, TextWrapped = true, BorderSizePixel = 0, AutoButtonColor = false, ZIndex = 100, Active = true
 })
 create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = icon }) 
-create("UIStroke", { Color = CFG.Accent, Thickness = 2, Parent = icon })
+create("UIStroke", { Color = CFG.Accent, Thickness = 2.5, Parent = icon })
 
 local dragIcon, startIcon, posIcon, iconMoved
 icon.InputBegan:Connect(function(input)
